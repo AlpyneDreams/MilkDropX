@@ -4,30 +4,29 @@
 Copyright 2005-2013 Nullsoft, Inc.
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
   * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+    this list of conditions and the following disclaimer.
 
   * Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 
-  * Neither the name of Nullsoft nor the names of its contributors may be used to 
-    endorse or promote products derived from this software without specific prior written permission. 
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+  * Neither the name of Nullsoft nor the names of its contributors may be used to
+    endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
 CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "api.h"
 #include "plugin.h"
 #include "resource.h"
 #include "support.h"
@@ -39,19 +38,19 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #define D3DCOLOR_RGBA_01(r,g,b,a) D3DCOLOR_RGBA(((int)(r*255)),((int)(g*255)),((int)(b*255)),((int)(a*255)))
-#define FRAND ((warand() % 7381)/7380.0f)
+#define FRAND ((rand() % 7381)/7380.0f)
 
 #define VERT_CLIP 0.75f		// warning: top/bottom can get clipped if you go < 0.65!
 
-int g_title_font_sizes[] =  
-{ 
+int g_title_font_sizes[] =
+{
     // NOTE: DO NOT EXCEED 64 FONTS HERE.
-	6,  8,  10, 12, 14, 16,      
+	6,  8,  10, 12, 14, 16,
 	20, 26, 32, 38, 44, 50, 56,
-	64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 
-	160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 
+	64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144,
+	160, 192, 224, 256, 288, 320, 352, 384, 416, 448,
 	480, 512	/**/
-};	
+};
 
 //#define COMPILE_MULTIMON_STUBS 1
 //#include <multimon.h>
@@ -67,7 +66,7 @@ static void MungeFPCW( WORD *pwOldCW )
 #if 0
     BOOL ret = FALSE;
     WORD wTemp, wSave;
- 
+
     __asm fstcw wSave
     if (wSave & 0x300 ||            // Not single mode
         0x3f != (wSave & 0x3f) ||   // Exceptions enabled
@@ -105,7 +104,7 @@ int GetNumToSpawn(float fTime, float fDeltaT, float fRate, float fRegularity, in
     // fTime:          sum of all fDeltaT's so far (excluding this one)
     // fDeltaT:        time window for this frame
     // fRate:          avg. rate (spawns per second) of generation
-    // fRegularity:    regularity of generation 
+    // fRegularity:    regularity of generation
 	//					0.0: totally chaotic
 	//					0.2: getting chaotic / very jittered
 	//					0.4: nicely jittered
@@ -141,7 +140,7 @@ int GetNumToSpawn(float fTime, float fDeltaT, float fRate, float fRegularity, in
     if (fDeltaT <= 1.0f / fRate)
     {
         // case 1: avg. less than 1 spawn per frame
-        if ((warand() % 16384)/16384.0f < fDeltaT * fRate)
+        if ((rand() % 16384)/16384.0f < fDeltaT * fRate)
             fNumToSpawnIrreg = 1.0f;
         else
             fNumToSpawnIrreg = 0.0f;
@@ -150,7 +149,7 @@ int GetNumToSpawn(float fTime, float fDeltaT, float fRate, float fRegularity, in
     {
         // case 2: avg. more than 1 spawn per frame
         fNumToSpawnIrreg = fDeltaT * fRate;
-        fNumToSpawnIrreg *= 2.0f*(warand() % 16384)/16384.0f;
+        fNumToSpawnIrreg *= 2.0f*(rand() % 16384)/16384.0f;
     }
 
     // get linear combo. of regular & irregular
@@ -184,19 +183,19 @@ bool CPlugin::OnResizeTextWindow()
 		{
 			SelectObject(m_memDC, m_oldBM);	// delete our doublebuffer
 			DeleteObject(m_memDC);
-			DeleteObject(m_memBM);	
+			DeleteObject(m_memBM);
 			m_memDC = NULL;
 			m_memBM = NULL;
 			m_oldBM = NULL;
 		}
-		
+
 		HDC hdc = GetDC(m_hTextWnd);
 		if (!hdc) return false;
 
 		m_memDC = CreateCompatibleDC(hdc);
 		m_memBM = CreateCompatibleBitmap(hdc, rect.right - rect.left, rect.bottom - rect.top);
 		m_oldBM = (HBITMAP)SelectObject(m_memDC,m_memBM);
-		
+
 		ReleaseDC(m_hTextWnd, hdc);
 
 		// save new window pos
@@ -242,7 +241,7 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
 
 	wchar_t szTextToDraw[512];
 	swprintf(szTextToDraw, L" %s ", m_supertext.szTextW);  //add a space @ end for italicized fonts; and at start, too, because it's centered!
-	
+
     // Remember the original backbuffer and zbuffer
     LPDIRECT3DSURFACE9 pBackBuffer=NULL;//, pZBuffer=NULL;
     lpDevice->GetRenderTarget( 0, &pBackBuffer );
@@ -253,7 +252,7 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
 	    lpDevice->SetTexture(0, NULL);
 
         IDirect3DSurface9* pNewTarget = NULL;
-        if (m_lpDDSTitle->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+        if (m_lpDDSTitle->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
         {
             SafeRelease(pBackBuffer);
             //SafeRelease(pZBuffer);
@@ -322,7 +321,7 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
 
         int lo = 0;
 	    int hi = sizeof(g_title_font_sizes)/sizeof(int) - 1;
-    
+
         // limit the size of the font used:
 
         //int user_title_size = GetFontHeight(SONGTITLE_FONT);
@@ -335,24 +334,24 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
 		    int mid = (lo+hi)/2;
 
 		    // create new gdi font at 'mid' size:
-            gdi_font = CreateFontW( g_title_font_sizes[mid], 0, 0, 0, m_supertext.bBold ? 900 : 400, m_supertext.bItal, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 
-				                    m_fontinfo[SONGTITLE_FONT].bAntiAliased ? ANTIALIASED_QUALITY : DEFAULT_QUALITY, 
+            gdi_font = CreateFontW( g_title_font_sizes[mid], 0, 0, 0, m_supertext.bBold ? 900 : 400, m_supertext.bItal, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+				                    m_fontinfo[SONGTITLE_FONT].bAntiAliased ? ANTIALIASED_QUALITY : DEFAULT_QUALITY,
 								    DEFAULT_PITCH, m_supertext.nFontFace );
-            if (gdi_font) 
+            if (gdi_font)
             {
                 // create new d3dx font at 'mid' size:
-                if (pCreateFontW(
-					    lpDevice, 
-						g_title_font_sizes[mid], 
-						0, 
-						m_supertext.bBold ? 900 : 400, 
-						1,                       
-						m_supertext.bItal, 
-						DEFAULT_CHARSET, 
-						OUT_DEFAULT_PRECIS, 
-						ANTIALIASED_QUALITY,//m_fontinfo[SONGTITLE_FONT].bAntiAliased ? ANTIALIASED_QUALITY : DEFAULT_QUALITY, 
+                if (D3DXCreateFontW(
+					    lpDevice,
+						g_title_font_sizes[mid],
+						0,
+						m_supertext.bBold ? 900 : 400,
+						1,
+						m_supertext.bItal,
+						DEFAULT_CHARSET,
+						OUT_DEFAULT_PRECIS,
+						ANTIALIASED_QUALITY,//m_fontinfo[SONGTITLE_FONT].bAntiAliased ? ANTIALIASED_QUALITY : DEFAULT_QUALITY,
 						DEFAULT_PITCH,
-						m_supertext.nFontFace, 
+						m_supertext.nFontFace,
 						&d3dx_font
 				) == D3D_OK)
                 {
@@ -385,7 +384,7 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
             temp.top    = m_nTitleTexSizeY/2 - h/2;
             temp.bottom = m_nTitleTexSizeY/2 + h/2;
 	        m_supertext.nFontSizeUsed = d3dx_font->DrawTextW(NULL, szTextToDraw, -1, &temp, DT_SINGLELINE /*| DT_NOPREFIX*/ | DT_CENTER, 0xFFFFFFFF);
-	        
+
             ret = true;
         }
         else
@@ -433,7 +432,7 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
             int len = wcslen(str);
             float fPercentToKeep = 0.91f * m_nTitleTexSizeX / (float)(temp.right-temp.left);
             if (len > 8)
-                lstrcpyW( &str[ (int)(len*fPercentToKeep) ], L"...");            
+                lstrcpyW( &str[ (int)(len*fPercentToKeep) ], L"...");
             break;
         }
 
@@ -462,18 +461,18 @@ void CPlugin::LoadPerFrameEvallibVars(CState* pState)
 {
     // load the 'var_pf_*' variables in this CState object with the correct values.
     // for vars that affect pixel motion, that means evaluating them at time==-1,
-    //    (i.e. no blending w/blendto value); the blending of the file dx/dy 
+    //    (i.e. no blending w/blendto value); the blending of the file dx/dy
     //    will be done *after* execution of the per-vertex code.
     // for vars that do NOT affect pixel motion, evaluate them at the current time,
     //    so that if they're blending, both states see the blended value.
 
     // 1. vars that affect pixel motion: (eval at time==-1)
-	*pState->var_pf_zoom		= (double)pState->m_fZoom.eval(-1);//GetTime()); 
+	*pState->var_pf_zoom		= (double)pState->m_fZoom.eval(-1);//GetTime());
 	*pState->var_pf_zoomexp		= (double)pState->m_fZoomExponent.eval(-1);//GetTime());
-	*pState->var_pf_rot			= (double)pState->m_fRot.eval(-1);//GetTime());  
-	*pState->var_pf_warp		= (double)pState->m_fWarpAmount.eval(-1);//GetTime()); 
-	*pState->var_pf_cx			= (double)pState->m_fRotCX.eval(-1);//GetTime());	
-	*pState->var_pf_cy			= (double)pState->m_fRotCY.eval(-1);//GetTime()); 
+	*pState->var_pf_rot			= (double)pState->m_fRot.eval(-1);//GetTime());
+	*pState->var_pf_warp		= (double)pState->m_fWarpAmount.eval(-1);//GetTime());
+	*pState->var_pf_cx			= (double)pState->m_fRotCX.eval(-1);//GetTime());
+	*pState->var_pf_cy			= (double)pState->m_fRotCY.eval(-1);//GetTime());
 	*pState->var_pf_dx			= (double)pState->m_fXPush.eval(-1);//GetTime());
 	*pState->var_pf_dy			= (double)pState->m_fYPush.eval(-1);//GetTime());
 	*pState->var_pf_sx			= (double)pState->m_fStretchX.eval(-1);//GetTime());
@@ -564,7 +563,7 @@ void CPlugin::RunPerFrameEquations(int code)
           NEWwarp ~ blend-to preset has a warp shader; etc.
 
       code OLDcomp NEWcomp OLDwarp NEWwarp
-        0    
+        0
         1            1
         2                            1
         3            1               1
@@ -631,22 +630,22 @@ void CPlugin::RunPerFrameEquations(int code)
 		else
 			pState = m_pOldState;
 
-		// values that will affect the pixel motion (and will be automatically blended 
+		// values that will affect the pixel motion (and will be automatically blended
 		//	LATER, when the results of 2 sets of these params creates 2 different U/V
 		//  meshes that get blended together.)
         LoadPerFrameEvallibVars(pState);
 
 		// also do just a once-per-frame init for the *per-**VERTEX*** *READ-ONLY* variables
 		// (the non-read-only ones will be reset/restored at the start of each vertex)
-		*pState->var_pv_time		= *pState->var_pf_time;	
+		*pState->var_pv_time		= *pState->var_pf_time;
 		*pState->var_pv_fps         = *pState->var_pf_fps;
 		*pState->var_pv_frame		= *pState->var_pf_frame;
 		*pState->var_pv_progress    = *pState->var_pf_progress;
-		*pState->var_pv_bass		= *pState->var_pf_bass;	
-		*pState->var_pv_mid			= *pState->var_pf_mid;		
-		*pState->var_pv_treb		= *pState->var_pf_treb;	
+		*pState->var_pv_bass		= *pState->var_pf_bass;
+		*pState->var_pv_mid			= *pState->var_pf_mid;
+		*pState->var_pv_treb		= *pState->var_pf_treb;
 		*pState->var_pv_bass_att	= *pState->var_pf_bass_att;
-		*pState->var_pv_mid_att		= *pState->var_pf_mid_att;	
+		*pState->var_pv_mid_att		= *pState->var_pf_mid_att;
 		*pState->var_pv_treb_att	= *pState->var_pf_treb_att;
         *pState->var_pv_meshx       = (double)m_nGridX;
         *pState->var_pv_meshy       = (double)m_nGridY;
@@ -692,7 +691,7 @@ void CPlugin::RunPerFrameEquations(int code)
 	if (m_pState->m_bBlending)
 	{
 		// For all variables that do NOT affect pixel motion, blend them NOW,
-        // so later the user can just access m_pState->m_pf_whatever.  
+        // so later the user can just access m_pState->m_pf_whatever.
 		double mix  = (double)CosineInterp(m_pState->m_fBlendProgress);
 		double mix2 = 1.0 - mix;
         *m_pState->var_pf_decay        = mix*(*m_pState->var_pf_decay       ) + mix2*(*m_pOldState->var_pf_decay       );
@@ -704,7 +703,7 @@ void CPlugin::RunPerFrameEquations(int code)
         *m_pState->var_pf_wave_y       = mix*(*m_pState->var_pf_wave_y      ) + mix2*(*m_pOldState->var_pf_wave_y      );
         *m_pState->var_pf_wave_mystery = mix*(*m_pState->var_pf_wave_mystery) + mix2*(*m_pOldState->var_pf_wave_mystery);
 		// wave_mode: exempt (integer)
-        *m_pState->var_pf_ob_size      = mix*(*m_pState->var_pf_ob_size     ) + mix2*(*m_pOldState->var_pf_ob_size     ); 
+        *m_pState->var_pf_ob_size      = mix*(*m_pState->var_pf_ob_size     ) + mix2*(*m_pOldState->var_pf_ob_size     );
         *m_pState->var_pf_ob_r         = mix*(*m_pState->var_pf_ob_r        ) + mix2*(*m_pOldState->var_pf_ob_r        );
         *m_pState->var_pf_ob_g         = mix*(*m_pState->var_pf_ob_g        ) + mix2*(*m_pOldState->var_pf_ob_g        );
         *m_pState->var_pf_ob_b         = mix*(*m_pState->var_pf_ob_b        ) + mix2*(*m_pOldState->var_pf_ob_b        );
@@ -763,28 +762,7 @@ void CPlugin::RenderFrame(int bRedraw)
 	    m_lpVS[1] = pTemp;
     }
 
-	// update time
-    /*
-    float fDeltaT = (GetFrame()==0) ? 1.0f/30.0f : GetTime() - m_prev_time;
-	DWORD dwTime		= GetTickCount();
-	float fDeltaT		= (dwTime - m_dwPrevTickCount)*0.001f;
-	if (GetFrame() > 64)
-	{
-		fDeltaT = (fDeltaT)*0.2f + 0.8f*(1.0f/m_fps);
-		if (fDeltaT > 2.0f/m_fps)
-		{
-			char buf[64];
-			sprintf(buf, "fixing time gap of %5.3f seconds", fDeltaT);
-			dumpmsg(buf);
-
-			fDeltaT = 1.0f/m_fps;
-		}
-	}
-	m_dwPrevTickCount	= dwTime;
-	GetTime()			+= fDeltaT;
-    */
-
-	if (GetFrame()==0) 
+	if (GetFrame()==0)
 	{
 		m_fStartTime = GetTime();
 		m_fPresetStartTime = GetTime();
@@ -792,70 +770,9 @@ void CPlugin::RenderFrame(int bRedraw)
 
 	if (m_fNextPresetTime < 0)
 	{
-		float dt = m_fTimeBetweenPresetsRand * (warand()%1000)*0.001f;
+		float dt = m_fTimeBetweenPresetsRand * (rand()%1000)*0.001f;
 		m_fNextPresetTime = GetTime() + m_fBlendTimeAuto + m_fTimeBetweenPresets + dt;
 	}
-
-	/*
-    if (m_bPresetLockedByUser || m_bPresetLockedByCode)
-	{
-		// if the user has the preset LOCKED, or if they're in the middle of 
-		// saving it, then keep extending the time at which the auto-switch will occur
-		// (by the length of this frame).
-
-		m_fPresetStartTime += fDeltaT;
-		m_fNextPresetTime += fDeltaT;
-	}*/
-
-	// update fps
-	/*
-	if (GetFrame() < 4)
-	{
-		m_fps = 0.0f;
-	}
-	else if (GetFrame() <= 64)
-	{
-		m_fps = GetFrame() / (float)(GetTime() - m_fTimeHistory[0]);
-	}
-	else
-	{
-		m_fps = 64.0f / (float)(GetTime() - m_fTimeHistory[m_nTimeHistoryPos]);
-	}
-	m_fTimeHistory[m_nTimeHistoryPos] = GetTime();
-	m_nTimeHistoryPos = (m_nTimeHistoryPos + 1) % 64;
-    */
-
-	// limit fps, if necessary
-    /*
-	if (m_nFpsLimit > 0 && (GetFrame() % 64) == 0 && GetFrame() > 64)
-	{
-		float spf_now     = 1.0f / m_fps;
-		float spf_desired = 1.0f / (float)m_nFpsLimit;
-
-		float new_sleep = m_fFPSLimitSleep + (spf_desired - spf_now)*1000.0f;
-		
-		if (GetFrame() <= 128)
-			m_fFPSLimitSleep = new_sleep;
-		else
-			m_fFPSLimitSleep = m_fFPSLimitSleep*0.8f + 0.2f*new_sleep;
-		
-		if (m_fFPSLimitSleep < 0) m_fFPSLimitSleep = 0;
-		if (m_fFPSLimitSleep > 100) m_fFPSLimitSleep = 100;
-
-		//sprintf(m_szUserMessage, "sleep=%f", m_fFPSLimitSleep);
-		//m_fShowUserMessageUntilThisTime = GetTime() + 3.0f;
-	}
-
-	static float deficit;
-	if (GetFrame()==0) deficit = 0;
-	float ideal_sleep = (m_fFPSLimitSleep + deficit);
-	int actual_sleep = (int)ideal_sleep;
-	if (actual_sleep > 0)
-		Sleep(actual_sleep);
-	deficit = ideal_sleep - actual_sleep; 
-	if (deficit < 0) deficit = 0;	// just in case
-	if (deficit > 1) deficit = 1;	// just in case
-    */
 
     if (!bRedraw)
     {
@@ -869,10 +786,10 @@ void CPlugin::RenderFrame(int bRedraw)
 	    }
 
 	    // randomly spawn Song Title, if time
-	    if (m_fTimeBetweenRandomSongTitles > 0 && 
+	    if (m_fTimeBetweenRandomSongTitles > 0 &&
 		    !m_supertext.bRedrawSuperText &&
 		    GetTime() >= m_supertext.fStartTime + m_supertext.fDuration + 1.0f/GetFps())
-	    {		
+	    {
 		    int n = GetNumToSpawn(GetTime(), fDeltaT, 1.0f/m_fTimeBetweenRandomSongTitles, 0.5f, m_nSongTitlesSpawned);
 		    if (n > 0)
 		    {
@@ -882,10 +799,10 @@ void CPlugin::RenderFrame(int bRedraw)
 	    }
 
 	    // randomly spawn Custom Message, if time
-	    if (m_fTimeBetweenRandomCustomMsgs > 0 && 
+	    if (m_fTimeBetweenRandomCustomMsgs > 0 &&
 		    !m_supertext.bRedrawSuperText &&
 		    GetTime() >= m_supertext.fStartTime + m_supertext.fDuration + 1.0f/GetFps())
-	    {		
+	    {
 		    int n = GetNumToSpawn(GetTime(), fDeltaT, 1.0f/m_fTimeBetweenRandomCustomMsgs, 0.5f, m_nCustMsgsSpawned);
 		    if (n > 0)
 		    {
@@ -920,7 +837,7 @@ void CPlugin::RenderFrame(int bRedraw)
 		    {
 			    /*
 			    float halflife_modified = m_fHardCutHalflife*0.5f;
-			    //thresh = (thresh - 1.5f)*0.99f + 1.5f;		
+			    //thresh = (thresh - 1.5f)*0.99f + 1.5f;
 			    float k = -0.69315f / halflife_modified;*/
 			    float k = -1.3863f / (m_fHardCutHalflife*GetFps());
 			    //float single_frame_multiplier = powf(2.7183f, k / GetFps());
@@ -948,9 +865,9 @@ void CPlugin::RenderFrame(int bRedraw)
     bool bNewPresetUsesCompShader = (m_pState->m_nCompPSVersion > 0);
 
     // note: 'code' is only meaningful if we are BLENDING.
-    int code = (bOldPresetUsesWarpShader ? 8 : 0) | 
-               (bOldPresetUsesCompShader ? 4 : 0) | 
-               (bNewPresetUsesWarpShader ? 2 : 0) | 
+    int code = (bOldPresetUsesWarpShader ? 8 : 0) |
+               (bOldPresetUsesCompShader ? 4 : 0) |
+               (bNewPresetUsesWarpShader ? 2 : 0) |
                (bNewPresetUsesCompShader ? 1 : 0);
 
 	RunPerFrameEquations(code);
@@ -1016,7 +933,7 @@ void CPlugin::RenderFrame(int bRedraw)
         //      SPRITEVERTEX verts[4];          // has texcoords
         //   	lpDevice->SetTexture(0, m_sprite_tex);
         //      lpDevice->SetVertexShader( SPRITEVERTEX_FORMAT );
-        //      
+        //
         //      WFVERTEX verts[4];              // no texcoords
         //   	lpDevice->SetTexture(0, NULL);
         //      lpDevice->SetVertexShader( WFVERTEX_FORMAT );
@@ -1035,7 +952,7 @@ void CPlugin::RenderFrame(int bRedraw)
 	    lpDevice->SetTexture(0, NULL);
 
         IDirect3DSurface9* pNewTarget = NULL;
-        if (m_lpVS[0]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+        if (m_lpVS[0]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
             return;
         lpDevice->SetRenderTarget(0, pNewTarget );
          //lpDevice->SetDepthStencilSurface( NULL );
@@ -1054,7 +971,7 @@ void CPlugin::RenderFrame(int bRedraw)
     if (m_nFramesSinceResize == 0)
     {
         IDirect3DSurface9* pNewTarget = NULL;
-        if (m_lpVS[0]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+        if (m_lpVS[0]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
             return;
         lpDevice->SetRenderTarget(0, pNewTarget );
 		 //lpDevice->SetDepthStencilSurface( NULL );
@@ -1066,7 +983,7 @@ void CPlugin::RenderFrame(int bRedraw)
     // set up to render [from VS0] to VS1.
     {
         IDirect3DSurface9* pNewTarget = NULL;
-        if (m_lpVS[1]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+        if (m_lpVS[1]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
             return;
         lpDevice->SetRenderTarget(0, pNewTarget );
 		 //lpDevice->SetDepthStencilSurface( NULL );
@@ -1082,14 +999,14 @@ void CPlugin::RenderFrame(int bRedraw)
 			m_n16BitGamma = 2;
 		else if (strstr(GetDriverDescription(), "ATI RAGE MOBILITY M"))
 	        m_n16BitGamma = 2;
-		else 
+		else
             m_n16BitGamma = 0;
 	}
 
     ComputeGridAlphaValues();
 
 	// do the warping for this frame [warp shader]
-    if (!m_pState->m_bBlending) 
+    if (!m_pState->m_bBlending)
     {
         // no blend
         if (bNewPresetUsesWarpShader)
@@ -1112,7 +1029,7 @@ void CPlugin::RenderFrame(int bRedraw)
         }
         else if (!bOldPresetUsesWarpShader && bNewPresetUsesWarpShader)
         {
-	        WarpedBlit_NoShaders(0, false, false,   true, true);  
+	        WarpedBlit_NoShaders(0, false, false,   true, true);
 	        WarpedBlit_Shaders  (1, true,  false,   true, false);
         }
         else if (bOldPresetUsesWarpShader && !bNewPresetUsesWarpShader)
@@ -1155,9 +1072,9 @@ void CPlugin::RenderFrame(int bRedraw)
 	 //lpDevice->SetDepthStencilSurface( pZBuffer );
     SafeRelease(pBackBuffer);
     //SafeRelease(pZBuffer);
-	
+
     // show it to the user [composite shader]
-    if (!m_pState->m_bBlending) 
+    if (!m_pState->m_bBlending)
     {
         // no blend
         if (bNewPresetUsesCompShader)
@@ -1173,7 +1090,7 @@ void CPlugin::RenderFrame(int bRedraw)
         // note: bFlipCulling==false means tiles with alpha>0 will draw.
         //       bFlipCulling==true  means tiles with alpha<255 will draw.
 
-        // NOTE: ShowToUser_NoShaders() must always come before ShowToUser_Shaders(), 
+        // NOTE: ShowToUser_NoShaders() must always come before ShowToUser_Shaders(),
         //        because it always draws the full quad (it can't do tile culling or alpha blending).
         //        [third case here]
 
@@ -1276,7 +1193,7 @@ void CPlugin::DrawMotionVectors()
 			if (dy2 < 0.0f) dy2 = 1.0f - (-dy2 - (int)(-dy2));
 			// hack: when there is only 1 motion vector on the screem, to keep it in
 			//       the center, we gradually migrate it toward 0.5.
-			dx2 = dx2*0.995f + 0.5f*0.005f;	
+			dx2 = dx2*0.995f + 0.5f*0.005f;
 			dy2 = dy2*0.995f + 0.5f*0.005f;
 			// safety catch
 			if (dx2 < 0 || dx2 > 1 || dy2 < 0 || dy2 > 1)
@@ -1337,7 +1254,7 @@ void CPlugin::DrawMotionVectors()
 							//fy2 = 1-(fy + 1.0f/(float)m_nTexSize);
 
 							// enforce minimum trail lengths:
-							{	
+							{
 								float dx = (fx2 - fx);
 								float dy = (fy2 - fy);
 								dx *= len_mult;
@@ -1359,7 +1276,7 @@ void CPlugin::DrawMotionVectors()
 									dx = min_len;
 									dy = min_len;
 								}
-									
+
 								fx2 = fx + dx;
 								fy2 = fy + dy;
 							}
@@ -1368,11 +1285,11 @@ void CPlugin::DrawMotionVectors()
 							v[n].x = fx * 2.0f - 1.0f;
 							v[n].y = fy * 2.0f - 1.0f;
 							v[n+1].x = fx2 * 2.0f - 1.0f;
-							v[n+1].y = fy2 * 2.0f - 1.0f; 
+							v[n+1].y = fy2 * 2.0f - 1.0f;
 
 							// actually, project it in the reverse direction
-							//v[n+1].x = v[n].x*2.0f - v[n+1].x;// + dx*2; 
-							//v[n+1].y = v[n].y*2.0f - v[n+1].y;// + dy*2; 
+							//v[n+1].x = v[n].x*2.0f - v[n+1].x;// + dx*2;
+							//v[n+1].y = v[n].y*2.0f - v[n+1].y;// + dy*2;
 							//v[n].x += dx*2;
 							//v[n].y += dy*2;
 
@@ -1449,7 +1366,7 @@ void CPlugin::UpdateSongInfo()
 				}
 			}*/
 			/*
-			if (m_bSongTitleAnims && 
+			if (m_bSongTitleAnims &&
 				((lstrcmp(szOldSongMessage, m_szSongMessage) != 0) || (GetFrame()==0)))
 			{
 				// launch song title animation
@@ -1471,7 +1388,7 @@ void CPlugin::UpdateSongInfo()
 				m_supertext.nColorG     = 255;
 				m_supertext.nColorB     = 255;
 
-				m_supertext.fStartTime  = GetTime(); 
+				m_supertext.fStartTime  = GetTime();
 				*/
 /*			}
 		}
@@ -1487,7 +1404,7 @@ void CPlugin::UpdateSongInfo()
 	if (m_bShowSongTime && m_nSongPosMS >= 0)
 	{
 		float time_s = m_nSongPosMS*0.001f;
-		
+
 		int minutes = (int)(time_s/60);
 		time_s -= minutes*60;
 		int seconds = (int)time_s;
@@ -1588,8 +1505,8 @@ void CPlugin::BlurPasses()
         // Note: Blur is currently a little funky.  It blurs the *current* frame after warp;
         //         this way, it lines up well with the composite pass.  However, if you switch
         //         presets instantly, to one whose *warp* shader uses the blur texture,
-        //         it will be outdated (just for one frame).  Oh well.  
-        //       This also means that when sampling the blurred textures in the warp shader, 
+        //         it will be outdated (just for one frame).  Oh well.
+        //       This also means that when sampling the blurred textures in the warp shader,
         //         they are one frame old.  This isn't too big a deal.  Getting them to match
         //         up for the composite pass is probably more important.
 
@@ -1625,14 +1542,14 @@ void CPlugin::BlurPasses()
 
         // set up fullscreen quad
         MYVERTEX v[4];
-    
-        v[0].x = -1; 
+
+        v[0].x = -1;
         v[0].y = -1;
-        v[1].x =  1; 
+        v[1].x =  1;
         v[1].y = -1;
-        v[2].x = -1; 
+        v[2].x = -1;
         v[2].y =  1;
-        v[3].x =  1; 
+        v[3].x =  1;
         v[3].y =  1;
 
         v[0].tu = 0;    //kiv: upside-down?
@@ -1652,7 +1569,7 @@ void CPlugin::BlurPasses()
         float fscale[3];
         float fbias[3];
 
-        // figure out the progressive scale & bias needed, at each step, 
+        // figure out the progressive scale & bias needed, at each step,
         // to go from one [min..max] range to the next.
         float temp_min, temp_max;
         fscale[0] = 1.0f / (blur_max[0] - blur_min[0]);
@@ -1670,11 +1587,11 @@ void CPlugin::BlurPasses()
         for (i=0; i<passes; i++)
         {
             // hook up correct render target
-            if (m_lpBlur[i]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+            if (m_lpBlur[i]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
                 return;
             lpDevice->SetRenderTarget(0, pNewTarget);
             pNewTarget->Release();
-        
+
             // hook up correct source texture - assume there is only one, at stage 0
             lpDevice->SetTexture(0, (i==0) ? m_lpVS[0] : m_lpBlur[i-1]);
 
@@ -1692,7 +1609,7 @@ void CPlugin::BlurPasses()
             float fscale_now = fscale[i/2];
             float fbias_now  = fbias[i/2];
 
-            if (i%2==0) 
+            if (i%2==0)
             {
                 // pass 1 (long horizontal pass)
                 //-------------------------------------
@@ -1716,7 +1633,7 @@ void CPlugin::BlurPasses()
                 if (h[2]) pCT->SetVector( lpDevice, h[2], &D3DXVECTOR4( d1,d2,d3,d4 ));
                 if (h[3]) pCT->SetVector( lpDevice, h[3], &D3DXVECTOR4( fscale_now,fbias_now,w_div,0));
             }
-            else 
+            else
             {
                 // pass 2 (short vertical pass)
                 //-------------------------------------
@@ -1732,9 +1649,9 @@ void CPlugin::BlurPasses()
                 //-------------------------------------
                 if (h[0]) pCT->SetVector( lpDevice, h[0], &srctexsize );
                 if (h[5]) pCT->SetVector( lpDevice, h[5], &D3DXVECTOR4( w1,w2,d1,d2 ));
-                if (h[6]) 
+                if (h[6])
                 {
-                    // note: only do this first time; if you do it many times, 
+                    // note: only do this first time; if you do it many times,
                     // then the super-blurred levels will have big black lines along the top & left sides.
                     if (i==1)
                         pCT->SetVector( lpDevice, h[6], &D3DXVECTOR4( w_div,(1-edge_darken),edge_darken,5.0f )); //darken edges
@@ -1749,7 +1666,7 @@ void CPlugin::BlurPasses()
             // clear texture bindings
             lpDevice->SetTexture(0, NULL);
         }
-    
+
         lpDevice->SetRenderTarget(0, pBackBuffer);
          pBackBuffer->Release();
         lpDevice->SetPixelShader( NULL );
@@ -1818,7 +1735,7 @@ void CPlugin::ComputeGridAlphaValues()
 		float fDY		= (float)(*pState->var_pf_dy);
 		float fSX		= (float)(*pState->var_pf_sx);
 		float fSY		= (float)(*pState->var_pf_sy);
-		
+
 		int n = 0;
 
 		for (int y=0; y<=m_nGridY; y++)
@@ -1829,7 +1746,7 @@ void CPlugin::ComputeGridAlphaValues()
 				//m_verts[n].x = i/(float)m_nGridX*2.0f - 1.0f;
 				//m_verts[n].y = j/(float)m_nGridY*2.0f - 1.0f;
 				//m_verts[n].z = 0.0f;
-				
+
 				if (pState->m_pp_codehandle)
 				{
 					// restore all the variables to their original states,
@@ -1850,12 +1767,12 @@ void CPlugin::ComputeGridAlphaValues()
 					*pState->var_pv_dy		= *pState->var_pf_dy;
 					*pState->var_pv_sx		= *pState->var_pf_sx;
 					*pState->var_pv_sy		= *pState->var_pf_sy;
-					//*pState->var_pv_time		= *pState->var_pv_time;		// (these are all now initialized 
+					//*pState->var_pv_time		= *pState->var_pv_time;		// (these are all now initialized
 					//*pState->var_pv_bass		= *pState->var_pv_bass;		//  just once per frame)
-					//*pState->var_pv_mid		= *pState->var_pv_mid;		
-					//*pState->var_pv_treb		= *pState->var_pv_treb;	
+					//*pState->var_pv_mid		= *pState->var_pv_mid;
+					//*pState->var_pv_treb		= *pState->var_pv_treb;
 					//*pState->var_pv_bass_att	= *pState->var_pv_bass_att;
-					//*pState->var_pv_mid_att	= *pState->var_pv_mid_att;	
+					//*pState->var_pv_mid_att	= *pState->var_pv_mid_att;
 					//*pState->var_pv_treb_att	= *pState->var_pv_treb_att;
 
 #ifndef _NO_EXPR_
@@ -1901,7 +1818,7 @@ void CPlugin::ComputeGridAlphaValues()
 				// rotation:
 				float u2 = u - fCX;
 				float v2 = v - fCY;
-				
+
 				float cos_rot = cosf(fRot);
 				float sin_rot = sinf(fRot);
 				u = u2*cos_rot - v2*sin_rot + fCX;
@@ -1918,25 +1835,25 @@ void CPlugin::ComputeGridAlphaValues()
 				// final half-texel-offset translation:
 				u += texel_offset_x;
 				v += texel_offset_y;
-                
+
                 if (rep==0)
 				{
                     // UV's for m_pState
 					m_verts[n].tu = u;
 					m_verts[n].tv = v;
-					m_verts[n].Diffuse = 0xFFFFFFFF;		
+					m_verts[n].Diffuse = 0xFFFFFFFF;
 				}
 				else
 				{
                     // blend to UV's for m_pOldState
                     float mix2 = m_vertinfo[n].a*fBlend + m_vertinfo[n].c;//fCosineBlend2;
-                    mix2 = max(0,min(1,mix2));   
+                    mix2 = max(0,min(1,mix2));
                     //     if fBlend un-flipped, then mix2 is 0 at the beginning of a blend, 1 at the end...
                     //                           and alphas are 0 at the beginning, 1 at the end.
 					m_verts[n].tu = m_verts[n].tu*(mix2) + u*(1-mix2);
 					m_verts[n].tv = m_verts[n].tv*(mix2) + v*(1-mix2);
                     // this sets the alpha values for blending between two presets:
-					m_verts[n].Diffuse = 0x00FFFFFF | (((DWORD)(mix2*255))<<24);		
+					m_verts[n].Diffuse = 0x00FFFFFF | (((DWORD)(mix2*255))<<24);
 				}
 
 				n++;
@@ -1997,8 +1914,8 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
 	//if (m_pState->m_bBlending)
 	//	fDecay = fDecay*(fCosineBlend) + (1.0f-fCosineBlend)*((float)(*m_pOldState->var_pf_decay));
 
-	if (m_n16BitGamma > 0 && 
-        (GetBackBufFormat()==D3DFMT_R5G6B5 || GetBackBufFormat()==D3DFMT_X1R5G5B5 || GetBackBufFormat()==D3DFMT_A1R5G5B5 || GetBackBufFormat()==D3DFMT_A4R4G4B4) && 
+	if (m_n16BitGamma > 0 &&
+        (GetBackBufFormat()==D3DFMT_R5G6B5 || GetBackBufFormat()==D3DFMT_X1R5G5B5 || GetBackBufFormat()==D3DFMT_A1R5G5B5 || GetBackBufFormat()==D3DFMT_A4R4G4B4) &&
         fDecay < 0.9999f)
     {
 		fDecay = min(fDecay, (32.0f - m_n16BitGamma)/32.0f);
@@ -2014,7 +1931,7 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
     if (bAlphaBlend)
     {
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-        if (bFlipAlpha) 
+        if (bFlipAlpha)
         {
             lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_INVSRCALPHA);
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
@@ -2025,7 +1942,7 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         }
     }
-    else 
+    else
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
     int nAlphaTestValue = 0;
@@ -2034,12 +1951,12 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
 
     // Hurl the triangles at the video card.
     // We're going to un-index it, so that we don't stress any crappy (AHEM intel g33)
-    //  drivers out there.  
+    //  drivers out there.
     // If we're blending, we'll skip any polygon that is all alpha-blended out.
     // This also respects the MaxPrimCount limit of the video card.
     MYVERTEX tempv[1024 * 3];
     int max_prims_per_batch = min( GetCaps()->MaxPrimitiveCount, (sizeof(tempv)/sizeof(tempv[0]))/3) - 4;
-    int primCount = m_nGridX*m_nGridY*2;  
+    int primCount = m_nGridX*m_nGridY*2;
     int src_idx = 0;
     int prims_sent = 0;
     while (src_idx < primCount*3)
@@ -2049,12 +1966,12 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
         while (prims_queued < max_prims_per_batch && src_idx < primCount*3)
         {
             // copy 3 verts
-            for (int j=0; j<3; j++) 
+            for (int j=0; j<3; j++)
             {
                 tempv[i++] = m_verts[ m_indices_list[src_idx++] ];
                 // don't forget to flip sign on Y and factor in the decay color!:
                 tempv[i-1].y *= -1;
-		        tempv[i-1].Diffuse = (cDecay & 0x00FFFFFF) | (tempv[i-1].Diffuse & 0xFF000000);      
+		        tempv[i-1].Diffuse = (cDecay & 0x00FFFFFF) | (tempv[i-1].Diffuse & 0xFF000000);
             }
             if (bCullTiles)
             {
@@ -2062,11 +1979,11 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
                 DWORD d2 = (tempv[i-2].Diffuse >> 24);
                 DWORD d3 = (tempv[i-1].Diffuse >> 24);
                 bool bIsNeeded;
-                if (nAlphaTestValue) 
+                if (nAlphaTestValue)
                     bIsNeeded = ((d1 & d2 & d3) < 255);//(d1 < 255) || (d2 < 255) || (d3 < 255);
                 else
                     bIsNeeded = ((d1|d2|d3) > 0);//(d1 > 0) || (d2 > 0) || (d3 > 0);
-                if (!bIsNeeded) 
+                if (!bIsNeeded)
                     i -= 3;
                 else
                     prims_queued++;
@@ -2074,13 +1991,13 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
             else
                 prims_queued++;
         }
-        if (prims_queued > 0) 
+        if (prims_queued > 0)
             lpDevice->DrawPrimitiveUP( D3DPT_TRIANGLELIST, prims_queued, tempv, sizeof(MYVERTEX) );
     }
 
     /*
     if (!bCullTiles)
-    { 
+    {
         assert(!bAlphaBlend); //not handled yet
 
         // draw normally - just a full triangle strip for each half-row of cells
@@ -2106,7 +2023,7 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
     }
     else
     {
-        //   we're blending to/from a new pixel-shader enabled preset; 
+        //   we're blending to/from a new pixel-shader enabled preset;
         //   only draw the cells needed!  (an optimization)
         int nAlphaTestValue = 0;
         if (bFlipCulling)
@@ -2124,7 +2041,7 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
 			    m_verts_temp[i].z  =  m_verts[ref_vert].z;
 			    m_verts_temp[i].tu =  m_verts[ref_vert].tu;
 			    m_verts_temp[i].tv =  m_verts[ref_vert].tv;
-		        m_verts_temp[i].Diffuse = (cDecay & 0x00FFFFFF) | (m_verts[ref_vert].Diffuse & 0xFF000000);      
+		        m_verts_temp[i].Diffuse = (cDecay & 0x00FFFFFF) | (m_verts[ref_vert].Diffuse & 0xFF000000);
                 ref_vert++;
             }
 
@@ -2135,16 +2052,16 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
             ref_vert = (y)*(m_nGridX+1);
             DWORD d1 = (m_verts[ref_vert           ].Diffuse >> 24);
             DWORD d2 = (m_verts[ref_vert+m_nGridX+1].Diffuse >> 24);
-            if (nAlphaTestValue) 
+            if (nAlphaTestValue)
                 bWasNeeded = (d1 < 255) || (d2 < 255);
             else
                 bWasNeeded = (d1 > 0) || (d2 > 0);
-            for (i=0; i<m_nGridX; i++) 
+            for (i=0; i<m_nGridX; i++)
             {
                 bool bIsNeeded;
                 DWORD d1 = (m_verts[ref_vert+1           ].Diffuse >> 24);
                 DWORD d2 = (m_verts[ref_vert+1+m_nGridX+1].Diffuse >> 24);
-                if (nAlphaTestValue) 
+                if (nAlphaTestValue)
                     bIsNeeded = (d1 < 255) || (d2 < 255);
                 else
                     bIsNeeded = (d1 > 0) || (d2 > 0);
@@ -2162,7 +2079,7 @@ void CPlugin::WarpedBlit_NoShaders(int nPass, bool bAlphaBlend, bool bFlipAlpha,
 
                 nVert++;
                 ref_vert++;
-            }           
+            }
             lpDevice->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, (m_nGridX+1)*2, count/3, (void*)idx, D3DFMT_INDEX32, (void*)m_verts_temp, sizeof(MYVERTEX));
 	    }
     }/**/
@@ -2208,7 +2125,7 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
     if (bAlphaBlend)
     {
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-        if (bFlipAlpha) 
+        if (bFlipAlpha)
         {
             lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_INVSRCALPHA);
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
@@ -2219,7 +2136,7 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         }
     }
-    else 
+    else
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
     int pass = nPass;
@@ -2232,12 +2149,12 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
         lpDevice->SetVertexDeclaration(m_pMyVertDecl);
         lpDevice->SetVertexShader(m_fallbackShaders_vs.warp.ptr);
         lpDevice->SetPixelShader (si->ptr);
-        
+
         ApplyShaderParams( &(si->params), si->CT, state );
 
         // Hurl the triangles at the video card.
         // We're going to un-index it, so that we don't stress any crappy (AHEM intel g33)
-        //  drivers out there.  
+        //  drivers out there.
         // We divide it into the two halves of the screen (top/bottom) so we can hack
         //  the 'ang' values along the angle-wrap seam, halfway through the draw.
         // If we're blending, we'll skip any polygon that is all alpha-blended out.
@@ -2272,11 +2189,11 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
                         DWORD d2 = (tempv[i-2].Diffuse >> 24);
                         DWORD d3 = (tempv[i-1].Diffuse >> 24);
                         bool bIsNeeded;
-                        if (nAlphaTestValue) 
+                        if (nAlphaTestValue)
                             bIsNeeded = ((d1 & d2 & d3) < 255);//(d1 < 255) || (d2 < 255) || (d3 < 255);
                         else
                             bIsNeeded = ((d1|d2|d3) > 0);//(d1 > 0) || (d2 > 0) || (d3 > 0);
-                        if (!bIsNeeded) 
+                        if (!bIsNeeded)
                             i -= 3;
                         else
                             prims_queued++;
@@ -2284,7 +2201,7 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
                     else
                         prims_queued++;
                 }
-                if (prims_queued > 0) 
+                if (prims_queued > 0)
                     lpDevice->DrawPrimitiveUP( D3DPT_TRIANGLELIST, prims_queued, tempv, sizeof(MYVERTEX) );
             }
         }
@@ -2326,19 +2243,19 @@ void CPlugin::DrawCustomShapes()
                 float ang = GetTime()*1.5f;
 
                 // inside colors
-                float r = 1;    
+                float r = 1;
                 float g = 0;
                 float b = 0;
-                float a = 0.4f;//0.1f + 0.1f*sinf(GetTime()*0.31f); 
+                float a = 0.4f;//0.1f + 0.1f*sinf(GetTime()*0.31f);
 
                 // outside colors
-                float r2 = 0;       
+                float r2 = 0;
                 float g2 = 1;
                 float b2 = 0;
                 float a2 = 0;
 
                 // border colors
-                float border_r = 1;       
+                float border_r = 1;
                 float border_g = 1;
                 float border_b = 1;
                 float border_a = 0.5f;
@@ -2384,12 +2301,12 @@ void CPlugin::DrawCustomShapes()
                     v[0].z = 0;
                     v[0].tu = 0.5f;
                     v[0].tv = 0.5f;
-                    v[0].Diffuse = 
+                    v[0].Diffuse =
                         ((((int)(*pState->m_shape[i].var_pf_a * 255 * alpha_mult)) & 0xFF) << 24) |
                         ((((int)(*pState->m_shape[i].var_pf_r * 255)) & 0xFF) << 16) |
                         ((((int)(*pState->m_shape[i].var_pf_g * 255)) & 0xFF) <<  8) |
                         ((((int)(*pState->m_shape[i].var_pf_b * 255)) & 0xFF)      );
-                    v[1].Diffuse = 
+                    v[1].Diffuse =
                         ((((int)(*pState->m_shape[i].var_pf_a2 * 255 * alpha_mult)) & 0xFF) << 24) |
                         ((((int)(*pState->m_shape[i].var_pf_r2 * 255)) & 0xFF) << 16) |
                         ((((int)(*pState->m_shape[i].var_pf_g2 * 255)) & 0xFF) <<  8) |
@@ -2438,7 +2355,7 @@ void CPlugin::DrawCustomShapes()
                         lpDevice->SetVertexShader( NULL );
                         lpDevice->SetFVF( WFVERTEX_FORMAT );
 
-                        v2[0].Diffuse = 
+                        v2[0].Diffuse =
                             ((((int)(*pState->m_shape[i].var_pf_border_a * 255 * alpha_mult)) & 0xFF) << 24) |
                             ((((int)(*pState->m_shape[i].var_pf_border_r * 255)) & 0xFF) << 16) |
                             ((((int)(*pState->m_shape[i].var_pf_border_g * 255)) & 0xFF) <<  8) |
@@ -2450,7 +2367,7 @@ void CPlugin::DrawCustomShapes()
                             v2[j].z = v[j].z;
                             v2[j].Diffuse = v2[0].Diffuse;
                         }
-                    
+
                         int its = ((int)(*pState->m_shape[i].var_pf_thick) != 0) ? 4 : 1;
 		                float x_inc = 2.0f / (float)m_nTexSizeX;
 		                float y_inc = 2.0f / (float)m_nTexSizeY;
@@ -2610,15 +2527,15 @@ void CPlugin::DrawCustomWaves()
 
 			    // 2.a. do just a once-per-frame init for the *per-point* *READ-ONLY* variables
 			    //     (the non-read-only ones will be reset/restored at the start of each vertex)
-			    *pState->m_wave[i].var_pp_time		= *pState->m_wave[i].var_pf_time;	
+			    *pState->m_wave[i].var_pp_time		= *pState->m_wave[i].var_pf_time;
 			    *pState->m_wave[i].var_pp_fps       = *pState->m_wave[i].var_pf_fps;
 			    *pState->m_wave[i].var_pp_frame		= *pState->m_wave[i].var_pf_frame;
 		        *pState->m_wave[i].var_pp_progress  = *pState->m_wave[i].var_pf_progress;
-			    *pState->m_wave[i].var_pp_bass		= *pState->m_wave[i].var_pf_bass;	
-			    *pState->m_wave[i].var_pp_mid		= *pState->m_wave[i].var_pf_mid;		
-			    *pState->m_wave[i].var_pp_treb		= *pState->m_wave[i].var_pf_treb;	
+			    *pState->m_wave[i].var_pp_bass		= *pState->m_wave[i].var_pf_bass;
+			    *pState->m_wave[i].var_pp_mid		= *pState->m_wave[i].var_pf_mid;
+			    *pState->m_wave[i].var_pp_treb		= *pState->m_wave[i].var_pf_treb;
 			    *pState->m_wave[i].var_pp_bass_att	= *pState->m_wave[i].var_pf_bass_att;
-			    *pState->m_wave[i].var_pp_mid_att	= *pState->m_wave[i].var_pf_mid_att;	
+			    *pState->m_wave[i].var_pp_mid_att	= *pState->m_wave[i].var_pf_mid_att;
 			    *pState->m_wave[i].var_pp_treb_att	= *pState->m_wave[i].var_pf_treb_att;
 
 				NSEEL_code_execute(pState->m_wave[i].m_pf_codehandle);
@@ -2638,7 +2555,7 @@ void CPlugin::DrawCustomWaves()
                     float mult = ((pState->m_wave[i].bSpectrum) ? 0.15f : 0.004f) * pState->m_wave[i].scaling * pState->m_fWaveScale.eval(-1);
                     float *pdata1 = (pState->m_wave[i].bSpectrum) ? m_sound.fSpectrum[0] : m_sound.fWaveform[0];
                     float *pdata2 = (pState->m_wave[i].bSpectrum) ? m_sound.fSpectrum[1] : m_sound.fWaveform[1];
-                
+
                     // initialize tempdata[2][512]
                     int j0 = (pState->m_wave[i].bSpectrum) ? 0 : (max_samples - nSamples)/2/**(1-pState->m_wave[i].bSpectrum)*/ - pState->m_wave[i].sep/2;
                     int j1 = (pState->m_wave[i].bSpectrum) ? 0 : (max_samples - nSamples)/2/**(1-pState->m_wave[i].bSpectrum)*/ + pState->m_wave[i].sep/2;
@@ -2648,7 +2565,7 @@ void CPlugin::DrawCustomWaves()
                     // SMOOTHING:
                     tempdata[0][0] = pdata1[j0];
                     tempdata[1][0] = pdata2[j1];
-                    for (j=1; j<nSamples; j++) 
+                    for (j=1; j<nSamples; j++)
                     {
                         tempdata[0][j] = pdata1[(int)(j*t)+j0]*mix2 + tempdata[0][j-1]*mix1;
                         tempdata[1][j] = pdata2[(int)(j*t)+j1]*mix2 + tempdata[1][j-1]*mix1;
@@ -2660,7 +2577,7 @@ void CPlugin::DrawCustomWaves()
                         tempdata[1][j] = tempdata[1][j]*mix2 + tempdata[1][j+1]*mix1;
                     }
                     // finally, scale to final size:
-                    for (j=0; j<nSamples; j++) 
+                    for (j=0; j<nSamples; j++)
                     {
                         tempdata[0][j] *= mult;
                         tempdata[1][j] *= mult;
@@ -2672,7 +2589,7 @@ void CPlugin::DrawCustomWaves()
                     // to do:
                     //  -add any of the m_wave[i].xxx menu-accessible vars to the code?
                     WFVERTEX v[1024];
-                    float j_mult = 1.0f/(float)(nSamples-1); 
+                    float j_mult = 1.0f/(float)(nSamples-1);
                     for (j=0; j<nSamples; j++)
                     {
                         float t = j*j_mult;
@@ -2695,14 +2612,14 @@ void CPlugin::DrawCustomWaves()
                         v[j].x = (float)(*pState->m_wave[i].var_pp_x* 2-1)*m_fInvAspectX;
                         v[j].y = (float)(*pState->m_wave[i].var_pp_y*-2+1)*m_fInvAspectY;
                         v[j].z = 0;
-                        v[j].Diffuse = 
+                        v[j].Diffuse =
                             ((((int)(*pState->m_wave[i].var_pp_a * 255 * alpha_mult)) & 0xFF) << 24) |
                             ((((int)(*pState->m_wave[i].var_pp_r * 255)) & 0xFF) << 16) |
                             ((((int)(*pState->m_wave[i].var_pp_g * 255)) & 0xFF) <<  8) |
                             ((((int)(*pState->m_wave[i].var_pp_b * 255)) & 0xFF)      );
                     }
 
-              
+
 
                     // save changes to t1-t8 this frame
                     /*
@@ -2719,7 +2636,7 @@ void CPlugin::DrawCustomWaves()
                     // 3. smooth it
                     WFVERTEX v2[2048];
                     WFVERTEX *pVerts = v;
-                    if (!pState->m_wave[i].bUseDots) 
+                    if (!pState->m_wave[i].bUseDots)
                     {
                         nSamples = SmoothWave(v, nSamples, v2);
                         pVerts = v2;
@@ -2729,10 +2646,10 @@ void CPlugin::DrawCustomWaves()
 	                lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	                lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_SRCALPHA);
                     lpDevice->SetRenderState(D3DRS_DESTBLEND, pState->m_wave[i].bAdditive ? D3DBLEND_ONE : D3DBLEND_INVSRCALPHA);
-                
+
                     float ptsize = (float)((m_nTexSizeX >= 1024) ? 2 : 1) + (pState->m_wave[i].bDrawThick ? 1 : 0);
                     if (pState->m_wave[i].bUseDots)
-                        lpDevice->SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&ptsize) ); 
+                        lpDevice->SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&ptsize) );
 
                     int its = (pState->m_wave[i].bDrawThick && !pState->m_wave[i].bUseDots) ? 4 : 1;
 		            float x_inc = 2.0f / (float)m_nTexSizeX;
@@ -2751,7 +2668,7 @@ void CPlugin::DrawCustomWaves()
 
                     ptsize = 1.0f;
                     if (pState->m_wave[i].bUseDots)
-                        lpDevice->SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&ptsize) ); 
+                        lpDevice->SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&ptsize) );
                 }
             }
         }
@@ -2782,13 +2699,13 @@ void CPlugin::DrawWave(float *fL, float *fR)
 	if (m_D3DDevDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_DITHER)
 		m_lpD3DDev->SetRenderState(D3DRENDERSTATE_DITHERENABLE, TRUE);
 	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_FALSE);
-	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);            
+	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
 	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
 	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_FILLMODE, D3DFILL_WIREFRAME);  // vs. SOLID
 	m_lpD3DDev->SetRenderState(D3DRENDERSTATE_AMBIENT, D3DCOLOR_RGBA_01(1,1,1,1));
 
 	hr = m_lpD3DDev->SetTexture(0, NULL);
-	if (hr != D3D_OK) 
+	if (hr != D3D_OK)
 	{
 		//dumpmsg("Draw(): ERROR: SetTexture");
 		//IdentifyD3DError(hr);
@@ -2934,7 +2851,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			if (alpha > 1) alpha = 1;
 			//color = D3DCOLOR_RGBA_01(cr, cg, cb, alpha);
 
-			nVerts /= 2;	
+			nVerts /= 2;
 
 			for (i=0; i<nVerts; i++)
 			{
@@ -2946,7 +2863,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			}
 
 			break;
-			
+
 		case 2:
 			// centered spiro (alpha constant)
 			//	 aimed at not being so sound-responsive, but being very "nebula-like"
@@ -2965,7 +2882,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			if (alpha < 0) alpha = 0;
 			if (alpha > 1) alpha = 1;
 			//color = D3DCOLOR_RGBA_01(cr, cg, cb, alpha);
-			
+
 			for (i=0; i<nVerts; i++)
 			{
 				v[i].x = fR[i   ] *m_fAspectY + fWavePosX;//((pR[i] ^ 128) - 128)/90.0f * ASPECT; // 0.75 = adj. for aspect ratio
@@ -3005,7 +2922,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 		case 4:
 			// horizontal "script", left channel
 
-			if (nVerts > m_nTexSizeX/3) 
+			if (nVerts > m_nTexSizeX/3)
 				nVerts = m_nTexSizeX/3;
 
 			sample_offset = (NUM_WAVEFORM_SAMPLES-nVerts)/2;//mysound.GoGoAlignatron(nVerts + 25);	// only call this once nVerts is final!
@@ -3053,11 +2970,11 @@ void CPlugin::DrawWave(float *fL, float *fR)
 				/*
 				// center on Y
 				float avg_y = 0;
-				for (i=0; i<nVerts; i++) 
+				for (i=0; i<nVerts; i++)
 					avg_y += v[i].y;
 				avg_y /= (float)nVerts;
 				avg_y *= 0.5f;		// damp the movement
-				for (i=0; i<nVerts; i++) 
+				for (i=0; i<nVerts; i++)
 					v[i].y -= avg_y;
 				*/
 			}
@@ -3080,7 +2997,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			if (alpha < 0) alpha = 0;
 			if (alpha > 1) alpha = 1;
 			//color = D3DCOLOR_RGBA_01(cr, cg, cb, alpha);
-			
+
 			{
 				float cos_rot = cosf(GetTime()*0.3f);
 				float sin_rot = sinf(GetTime()*0.3f);
@@ -3107,12 +3024,12 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			//
 			// 7: same, except there are two channels shown, and
 			//   fWavePosY determines the separation distance.
-			// 
+			//
 			// 8: same as 6, except using the spectrum analyzer (UNFINISHED)
-			// 
+			//
 			nVerts /= 2;
 
-			if (nVerts > m_nTexSizeX/3) 
+			if (nVerts > m_nTexSizeX/3)
 				nVerts = m_nTexSizeX/3;
 
 			if (wave==8)
@@ -3145,7 +3062,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 				for (i=0; i<2; i++)	// for each point defining the line
 				{
 					// clip the point against 4 edges of screen
-					// be a bit lenient (use +/-1.1 instead of +/-1.0) 
+					// be a bit lenient (use +/-1.1 instead of +/-1.0)
 					//	 so the dual-wave doesn't end too soon, after the channels are moved apart
 					for (int j=0; j<4; j++)
 					{
@@ -3256,7 +3173,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 			nBreak2 = nBreak;
 			alpha2  = alpha;
 		}
-	}	
+	}
 
 	// v1[] is for the current waveform
 	// v2[] is for the old waveform (from prev. preset - only used if blending)
@@ -3311,7 +3228,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
 		v1[i].Diffuse = v1[0].Diffuse;
         v1[i].y = -v1[i].y;
     }
-	
+
     // don't draw wave if (possibly blended) alpha is less than zero.
     if (alpha1 < 0.004f)
         goto SKIP_DRAW_WAVE;
@@ -3325,7 +3242,7 @@ void CPlugin::DrawWave(float *fL, float *fR)
         {
             nVerts1 = SmoothWave(v1, nVerts1, vTess);
         }
-        else 
+        else
         {
             int oldBreak = nBreak1;
             nBreak1 = SmoothWave(v1, nBreak1, vTess);
@@ -3409,17 +3326,17 @@ void CPlugin::DrawSprites()
 
 		// positioning:
 		float fHalfSize = 0.05f;
-		v3[0].x = 0.0f; 	
-		v3[1].x = 0.0f - fHalfSize*m_fAspectY; 	
-		v3[2].x = 0.0f; 	
-		v3[3].x = 0.0f + fHalfSize*m_fAspectY; 	
-		v3[4].x = 0.0f; 
+		v3[0].x = 0.0f;
+		v3[1].x = 0.0f - fHalfSize*m_fAspectY;
+		v3[2].x = 0.0f;
+		v3[3].x = 0.0f + fHalfSize*m_fAspectY;
+		v3[4].x = 0.0f;
 		v3[5].x = v3[1].x;
-		v3[0].y = 0.0f; 	
+		v3[0].y = 0.0f;
 		v3[1].y = 0.0f;
-		v3[2].y = 0.0f - fHalfSize; 	
+		v3[2].y = 0.0f - fHalfSize;
 		v3[3].y = 0.0f;
-		v3[4].y = 0.0f + fHalfSize; 	
+		v3[4].y = 0.0f + fHalfSize;
 		v3[5].y = v3[1].y;
 		//v3[0].tu = 0;	v3[1].tu = 1;	v3[2].tu = 0;	v3[3].tu = 1;
 		//v3[0].tv = 1;	v3[1].tv = 1;	v3[2].tv = 0;	v3[3].tv = 0;
@@ -3459,7 +3376,7 @@ void CPlugin::DrawSprites()
 				float fInnerRad = (it==0) ? 1.0f - fOuterBorderSize : 1.0f - fOuterBorderSize - fInnerBorderSize;
 				float fOuterRad = (it==0) ? 1.0f                    : 1.0f - fOuterBorderSize;
 				v3[0].x =  fInnerRad;
-				v3[1].x =  fOuterRad; 	
+				v3[1].x =  fOuterRad;
 				v3[2].x =  fOuterRad;
 				v3[3].x =  fInnerRad;
 				v3[0].y =  fInnerRad;
@@ -3491,7 +3408,7 @@ void CPlugin::DrawSprites()
 bool CPlugin::SetMilkdropRenderTarget(LPDIRECTDRAWSURFACE7 lpSurf, int w, int h, char *szErrorMsg)
 {
 	HRESULT hr = m_lpD3DDev->SetRenderTarget(0, lpSurf, 0);
-	if (hr != D3D_OK) 
+	if (hr != D3D_OK)
 	{
 		//if (szErrorMsg && szErrorMsg[0]) dumpmsg(szErrorMsg);
 		//IdentifyD3DError(hr);
@@ -3543,7 +3460,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 	if (m_D3DDevDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_DITHER)
 		lpDevice->SetRenderState(D3DRS_DITHERENABLE, TRUE);
 	lpDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	lpDevice->SetRenderState(D3DRS_LIGHTING, FALSE);            
+	lpDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	lpDevice->SetRenderState(D3DRS_COLORVERTEX, TRUE);
 	lpDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);  // vs. wireframe
 	lpDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_RGBA_01(1,1,1,1));
@@ -3593,7 +3510,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 	            lpDevice->SetTexture(0, NULL);
 
                 IDirect3DSurface9* pNewTarget = NULL;
-                if (m_lpVS[1]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK) 
+                if (m_lpVS[1]->GetSurfaceLevel(0, &pNewTarget) != D3D_OK)
                     return;
                 lpDevice->SetRenderTarget(0, pNewTarget );
 				 //lpDevice->SetDepthStencilSurface( NULL );
@@ -3603,7 +3520,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
             }
 
 			// finally, use the results to draw the sprite.
-			if (lpDevice->SetTexture(0, m_texmgr.m_tex[iSlot].pSurface) != D3D_OK) 
+			if (lpDevice->SetTexture(0, m_texmgr.m_tex[iSlot].pSurface) != D3D_OK)
 				return;
 
 			SPRITEVERTEX v3[4];
@@ -3618,7 +3535,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
                 D3DSURFACE_DESC desc;
                 pRT->GetDesc(&desc);
                 dest_w = desc.Width;
-                dest_h = desc.Height;                
+                dest_h = desc.Height;
                 pRT->Release();
             }*/
 
@@ -3681,7 +3598,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 			// second aspect ratio: normalize to width of screen
 			{
 				float aspect = GetWidth() / (float)(GetHeight());
-				
+
 				if (aspect > 1)
 					for (k=0; k<4; k++) v3[k].y *= aspect;
 				else
@@ -3706,16 +3623,16 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 				float dtu = 0.5f;// / (float)m_texmgr.m_tex[iSlot].tex_w;
 				float dtv = 0.5f;// / (float)m_texmgr.m_tex[iSlot].tex_h;
 				v3[0].tu = -dtu;
-				v3[1].tu =  dtu;///*m_texmgr.m_tex[iSlot].img_w / (float)m_texmgr.m_tex[iSlot].tex_w*/ - dtu;	
-				v3[2].tu = -dtu;	
-				v3[3].tu =  dtu;///*m_texmgr.m_tex[iSlot].img_w / (float)m_texmgr.m_tex[iSlot].tex_w*/ - dtu;	
-				v3[0].tv = -dtv;	
-				v3[1].tv = -dtv;	
-				v3[2].tv =  dtv;///*m_texmgr.m_tex[iSlot].img_h / (float)m_texmgr.m_tex[iSlot].tex_h*/ - dtv;	
+				v3[1].tu =  dtu;///*m_texmgr.m_tex[iSlot].img_w / (float)m_texmgr.m_tex[iSlot].tex_w*/ - dtu;
+				v3[2].tu = -dtu;
+				v3[3].tu =  dtu;///*m_texmgr.m_tex[iSlot].img_w / (float)m_texmgr.m_tex[iSlot].tex_w*/ - dtu;
+				v3[0].tv = -dtv;
+				v3[1].tv = -dtv;
+				v3[2].tv =  dtv;///*m_texmgr.m_tex[iSlot].img_h / (float)m_texmgr.m_tex[iSlot].tex_h*/ - dtv;
 				v3[3].tv =  dtv;///*m_texmgr.m_tex[iSlot].img_h / (float)m_texmgr.m_tex[iSlot].tex_h*/ - dtv;
 
 				// repeat on x,y
-				for (k=0; k<4; k++) 
+				for (k=0; k<4; k++)
 				{
 					v3[k].tu = (v3[k].tu - 0.0f)*repeatx + 0.5f;
 					v3[k].tv = (v3[k].tv - 0.0f)*repeaty + 0.5f;
@@ -3727,7 +3644,7 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 			// 1   decal      r,g,b=modulate     a=modulate    D3DBLEND_ONE      D3DBLEND_ZERO
 			// 2   additive   r,g,b=modulate     a=modulate    D3DBLEND_ONE      D3DBLEND_ONE
 			// 3   srccolor   r,g,b=no effect    a=no effect   SRCCOLOR          INVSRCCOLOR
-			// 4   colorkey   r,g,b=modulate     a=no effect   
+			// 4   colorkey   r,g,b=modulate     a=no effect
 			switch(blendmode)
 			{
 			case 0:
@@ -3735,26 +3652,26 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 				// alpha blend
 
 				/*
-				Q. I am rendering with alpha blending and setting the alpha 
-				of the diffuse vertex component to determine the opacity.  
-				It works when there is no texture set, but as soon as I set 
+				Q. I am rendering with alpha blending and setting the alpha
+				of the diffuse vertex component to determine the opacity.
+				It works when there is no texture set, but as soon as I set
 				a texture the alpha that I set is no longer applied.  Why?
 
-				The problem originates in the texture blending stages, rather 
-				than in the subsequent alpha blending.  Alpha can come from 
-				several possible sources.  If this has not been specified, 
-				then the alpha will be taken from the texture, if one is selected.  
-				If no texture is selected, then the default will use the alpha 
+				The problem originates in the texture blending stages, rather
+				than in the subsequent alpha blending.  Alpha can come from
+				several possible sources.  If this has not been specified,
+				then the alpha will be taken from the texture, if one is selected.
+				If no texture is selected, then the default will use the alpha
 				channel of the diffuse vertex component.
 
-				Explicitly specifying the diffuse vertex component as the source 
-				for alpha will insure that the alpha is drawn from the alpha value 
+				Explicitly specifying the diffuse vertex component as the source
+				for alpha will insure that the alpha is drawn from the alpha value
 				you set, whether a texture is selected or not:
 
 				pDevice->SetSamplerState(D3DSAMP_ALPHAOP,D3DTOP_SELECTARG1);
 				pDevice->SetSamplerState(D3DSAMP_ALPHAARG1,D3DTA_DIFFUSE);
 
-				If you later need to use the texture alpha as the source, set 
+				If you later need to use the texture alpha as the source, set
 				D3DSAMP_ALPHAARG1 to D3DTA_TEXTURE.
 				*/
 
@@ -3787,8 +3704,8 @@ void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 				for (k=0; k<4; k++) v3[k].Diffuse = D3DCOLOR_RGBA_01(1,1,1,1);
 				break;
 			case 4:
-				// color keyed texture: use the alpha value in the texture to 
-				//  determine which texels get drawn.  
+				// color keyed texture: use the alpha value in the texture to
+				//  determine which texels get drawn.
 				/*lpDevice->SetRenderState(D3DRS_ALPHAREF, 0);
 				lpDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_NOTEQUAL);
 				lpDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
@@ -3870,7 +3787,7 @@ void CPlugin::UvToMathSpace(float u, float v, float* rad, float* ang)
     //      ang == 0 at three o'clock, and increases counter-clockwise (to 6.28).
     float px = (u*2-1) * m_fAspectX;  // probably 1.0
     float py = (v*2-1) * m_fAspectY;  // probably <1
-    
+
     *rad = sqrtf(px*px + py*py) / sqrtf(m_fAspectX*m_fAspectX + m_fAspectY*m_fAspectY);
     *ang = atan2f(py, px);
     if (*ang < 0)
@@ -3880,7 +3797,7 @@ void CPlugin::UvToMathSpace(float u, float v, float* rad, float* ang)
 void CPlugin::RestoreShaderParams()
 {
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
-    for (int i=0; i<2; i++) 
+    for (int i=0; i<2; i++)
     {
         lpDevice->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);//texaddr);
         lpDevice->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);//texaddr);
@@ -3890,7 +3807,7 @@ void CPlugin::RestoreShaderParams()
         lpDevice->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
     }
 
-    for (i=0; i<4; i++) 
+    for (i=0; i<4; i++)
         lpDevice->SetTexture( i, NULL );
 
     lpDevice->SetVertexShader(NULL);
@@ -3904,21 +3821,21 @@ void CPlugin::ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CStat
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
 
     //if (p->texbind_vs      >= 0) lpDevice->SetTexture( p->texbind_vs   , m_lpVS[0]   );
-    //if (p->texbind_noise   >= 0) lpDevice->SetTexture( p->texbind_noise, m_pTexNoise );        
+    //if (p->texbind_noise   >= 0) lpDevice->SetTexture( p->texbind_noise, m_pTexNoise );
 
     // bind textures
-    for (int i=0; i<sizeof(p->m_texture_bindings)/sizeof(p->m_texture_bindings[0]); i++) 
-    {    
+    for (int i=0; i<sizeof(p->m_texture_bindings)/sizeof(p->m_texture_bindings[0]); i++)
+    {
         if (p->m_texcode[i] == TEX_VS)
             lpDevice->SetTexture(i, m_lpVS[0]);
-        else 
+        else
             lpDevice->SetTexture(i, p->m_texture_bindings[i].texptr);
 
         // also set up sampler stage, if anything is bound here...
-        if (p->m_texcode[i]==TEX_VS || p->m_texture_bindings[i].texptr) 
+        if (p->m_texcode[i]==TEX_VS || p->m_texture_bindings[i].texptr)
         {
-            bool bAniso = false;  
-            DWORD HQFilter = bAniso ? D3DTEXF_ANISOTROPIC : D3DTEXF_LINEAR;     
+            bool bAniso = false;
+            DWORD HQFilter = bAniso ? D3DTEXF_ANISOTROPIC : D3DTEXF_LINEAR;
             DWORD wrap   = p->m_texture_bindings[i].bWrap ? D3DTADDRESS_WRAP : D3DTADDRESS_CLAMP;
             DWORD filter = p->m_texture_bindings[i].bBilinear ? HQFilter : D3DTEXF_POINT;
             lpDevice->SetSamplerState(i, D3DSAMP_ADDRESSU, wrap);
@@ -3956,14 +3873,14 @@ void CPlugin::ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CStat
         aspect_y = GetHeight()/(float)GetWidth();
     else
         aspect_x = GetWidth()/(float)GetHeight();
-    
+
     float blur_min[3], blur_max[3];
     GetSafeBlurMinMax(pState, blur_min, blur_max);
 
     // bind float4's
     if (p->rand_frame ) pCT->SetVector( lpDevice, p->rand_frame , &m_rand_frame );
     if (p->rand_preset) pCT->SetVector( lpDevice, p->rand_preset, &pState->m_rand_preset );
-    D3DXHANDLE* h = p->const_handles; 
+    D3DXHANDLE* h = p->const_handles;
     if (h[0]) pCT->SetVector( lpDevice, h[0], &D3DXVECTOR4( aspect_x, aspect_y, 1.0f/aspect_x, 1.0f/aspect_y ));
     if (h[1]) pCT->SetVector( lpDevice, h[1], &D3DXVECTOR4(0, 0, 0, 0 ));
     if (h[2]) pCT->SetVector( lpDevice, h[2], &D3DXVECTOR4(time_since_preset_start_wrapped, GetFps(), (float)GetFrame(), progress));
@@ -3973,24 +3890,24 @@ void CPlugin::ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CStat
     if (h[6]) pCT->SetVector( lpDevice, h[6], &D3DXVECTOR4( blur_max[2]-blur_min[2], blur_min[2], blur_min[0], blur_max[0] ));
     if (h[7]) pCT->SetVector( lpDevice, h[7], &D3DXVECTOR4((float)m_nTexSizeX, (float)m_nTexSizeY, 1.0f/(float)m_nTexSizeX, 1.0f/(float)m_nTexSizeY ));
     if (h[8]) pCT->SetVector( lpDevice, h[8], &D3DXVECTOR4( 0.5f+0.5f*cosf(time* 0.329f+1.2f),
-                                                              0.5f+0.5f*cosf(time* 1.293f+3.9f), 
-                                                              0.5f+0.5f*cosf(time* 5.070f+2.5f), 
-                                                              0.5f+0.5f*cosf(time*20.051f+5.4f) 
+                                                              0.5f+0.5f*cosf(time* 1.293f+3.9f),
+                                                              0.5f+0.5f*cosf(time* 5.070f+2.5f),
+                                                              0.5f+0.5f*cosf(time*20.051f+5.4f)
         ));
     if (h[9]) pCT->SetVector( lpDevice, h[9], &D3DXVECTOR4( 0.5f+0.5f*sinf(time* 0.329f+1.2f),
-                                                              0.5f+0.5f*sinf(time* 1.293f+3.9f), 
-                                                              0.5f+0.5f*sinf(time* 5.070f+2.5f), 
-                                                              0.5f+0.5f*sinf(time*20.051f+5.4f) 
+                                                              0.5f+0.5f*sinf(time* 1.293f+3.9f),
+                                                              0.5f+0.5f*sinf(time* 5.070f+2.5f),
+                                                              0.5f+0.5f*sinf(time*20.051f+5.4f)
         ));
     if (h[10]) pCT->SetVector( lpDevice, h[10], &D3DXVECTOR4( 0.5f+0.5f*cosf(time*0.0050f+2.7f),
-                                                                0.5f+0.5f*cosf(time*0.0085f+5.3f), 
-                                                                0.5f+0.5f*cosf(time*0.0133f+4.5f), 
-                                                                0.5f+0.5f*cosf(time*0.0217f+3.8f) 
+                                                                0.5f+0.5f*cosf(time*0.0085f+5.3f),
+                                                                0.5f+0.5f*cosf(time*0.0133f+4.5f),
+                                                                0.5f+0.5f*cosf(time*0.0217f+3.8f)
         ));
     if (h[11]) pCT->SetVector( lpDevice, h[11], &D3DXVECTOR4( 0.5f+0.5f*sinf(time*0.0050f+2.7f),
-                                                                0.5f+0.5f*sinf(time*0.0085f+5.3f), 
-                                                                0.5f+0.5f*sinf(time*0.0133f+4.5f), 
-                                                                0.5f+0.5f*sinf(time*0.0217f+3.8f) 
+                                                                0.5f+0.5f*sinf(time*0.0085f+5.3f),
+                                                                0.5f+0.5f*sinf(time*0.0133f+4.5f),
+                                                                0.5f+0.5f*sinf(time*0.0217f+3.8f)
         ));
     if (h[12]) pCT->SetVector( lpDevice, h[12], &D3DXVECTOR4( mip_x, mip_y, mip_avg, 0 ));
     if (h[13]) pCT->SetVector( lpDevice, h[13], &D3DXVECTOR4( blur_min[1], blur_max[1], blur_min[2], blur_max[2] ));
@@ -3999,29 +3916,29 @@ void CPlugin::ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CStat
     int num_q_float4s = sizeof(p->q_const_handles)/sizeof(p->q_const_handles[0]);
     for (i=0; i<num_q_float4s; i++)
     {
-        if (p->q_const_handles[i]) 
-            pCT->SetVector( lpDevice, p->q_const_handles[i], &D3DXVECTOR4( 
-                (float)*pState->var_pf_q[i*4+0], 
-                (float)*pState->var_pf_q[i*4+1], 
-                (float)*pState->var_pf_q[i*4+2], 
+        if (p->q_const_handles[i])
+            pCT->SetVector( lpDevice, p->q_const_handles[i], &D3DXVECTOR4(
+                (float)*pState->var_pf_q[i*4+0],
+                (float)*pState->var_pf_q[i*4+1],
+                (float)*pState->var_pf_q[i*4+2],
                 (float)*pState->var_pf_q[i*4+3] ));
     }
 
     // write matrices
     for (i=0; i<20; i++)
     {
-        if (p->rot_mat[i]) 
+        if (p->rot_mat[i])
         {
             D3DXMATRIX mx,my,mz,mxlate,temp;
 
-            pMatrixRotationX(&mx, pState->m_rot_base[i].x + pState->m_rot_speed[i].x*time);
-            pMatrixRotationY(&my, pState->m_rot_base[i].y + pState->m_rot_speed[i].y*time);
-            pMatrixRotationZ(&mz, pState->m_rot_base[i].z + pState->m_rot_speed[i].z*time);
-            pMatrixTranslation(&mxlate, pState->m_xlate[i].x, pState->m_xlate[i].y, pState->m_xlate[i].z);
+            D3DXMatrixRotationX(&mx, pState->m_rot_base[i].x + pState->m_rot_speed[i].x*time);
+            D3DXMatrixRotationY(&my, pState->m_rot_base[i].y + pState->m_rot_speed[i].y*time);
+            D3DXMatrixRotationZ(&mz, pState->m_rot_base[i].z + pState->m_rot_speed[i].z*time);
+            D3DXMatrixTranslation(&mxlate, pState->m_xlate[i].x, pState->m_xlate[i].y, pState->m_xlate[i].z);
 
-            pMatrixMultiply(&temp, &mx, &mxlate);
-            pMatrixMultiply(&temp, &temp, &mz);
-            pMatrixMultiply(&temp, &temp, &my);
+            D3DXMatrixMultiply(&temp, &mx, &mxlate);
+            D3DXMatrixMultiply(&temp, &temp, &mz);
+            D3DXMatrixMultiply(&temp, &temp, &my);
 
             pCT->SetMatrix(lpDevice, p->rot_mat[i], &temp);
         }
@@ -4029,18 +3946,18 @@ void CPlugin::ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CStat
     // the last 4 are totally random, each frame
     for (i=20; i<24; i++)
     {
-        if (p->rot_mat[i]) 
+        if (p->rot_mat[i])
         {
             D3DXMATRIX mx,my,mz,mxlate,temp;
 
-            pMatrixRotationX(&mx, FRAND * 6.28f);
-            pMatrixRotationY(&my, FRAND * 6.28f);
-            pMatrixRotationZ(&mz, FRAND * 6.28f);
-            pMatrixTranslation(&mxlate, FRAND, FRAND, FRAND);
+            D3DXMatrixRotationX(&mx, FRAND * 6.28f);
+            D3DXMatrixRotationY(&my, FRAND * 6.28f);
+            D3DXMatrixRotationZ(&mz, FRAND * 6.28f);
+            D3DXMatrixTranslation(&mxlate, FRAND, FRAND, FRAND);
 
-            pMatrixMultiply(&temp, &mx, &mxlate);
-            pMatrixMultiply(&temp, &temp, &mz);
-            pMatrixMultiply(&temp, &temp, &my);
+            D3DXMatrixMultiply(&temp, &mx, &mxlate);
+            D3DXMatrixMultiply(&temp, &temp, &mz);
+            D3DXMatrixMultiply(&temp, &temp, &my);
 
             pCT->SetMatrix(lpDevice, p->rot_mat[i], &temp);
         }
@@ -4083,8 +4000,8 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
 	SPRITEVERTEX v3[4];
 	ZeroMemory(v3, sizeof(SPRITEVERTEX)*4);
 
-	// extend the poly we draw by 1 pixel around the viewable image area, 
-	//  in case the video card wraps u/v coords with a +0.5-texel offset 
+	// extend the poly we draw by 1 pixel around the viewable image area,
+	//  in case the video card wraps u/v coords with a +0.5-texel offset
 	//  (otherwise, a 1-pixel-wide line of the image would wrap at the top and left edges).
 	float fOnePlusInvWidth  = 1.0f + 1.0f/(float)GetWidth();
 	float fOnePlusInvHeight = 1.0f + 1.0f/(float)GetHeight();
@@ -4107,14 +4024,14 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
     else
         x_aspect_mult = 1.0f/aspect;
 
-	for (int n=0; n<4; n++) 
+	for (int n=0; n<4; n++)
     {
         v3[n].x *= x_aspect_mult;
         v3[n].y *= y_aspect_mult;
     }
-    
+
 	{
-		float shade[4][3] = { 
+		float shade[4][3] = {
 			{ 1.0f, 1.0f, 1.0f },
 			{ 1.0f, 1.0f, 1.0f },
 			{ 1.0f, 1.0f, 1.0f },
@@ -4149,7 +4066,7 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
 		int   nVideoEchoOrientation = (int)  (*m_pState->var_pf_echo_orient) % 4;//m_pState->m_nVideoEchoOrientation;
 		float fGammaAdj             = (float)(*m_pState->var_pf_gamma);//m_pState->m_fGammaAdj.eval(GetTime());
 
-		if (m_pState->m_bBlending && 
+		if (m_pState->m_bBlending &&
 			m_pState->m_fVideoEchoAlpha.eval(GetTime()) > 0.01f &&
 			m_pState->m_fVideoEchoAlphaOld > 0.01f &&
 			m_pState->m_nVideoEchoOrientation != m_pState->m_nVideoEchoOrientationOld)
@@ -4200,7 +4117,7 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
 				}
 
 				float mix = (i==1) ? fVideoEchoAlpha : 1.0f - fVideoEchoAlpha;
-				for (int k=0; k<4; k++)	
+				for (int k=0; k<4; k++)
 					v3[k].Diffuse = D3DCOLOR_RGBA_01(mix*shade[k][0],mix*shade[k][1],mix*shade[k][2],1);
 
                 lpDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void*)v3, sizeof(SPRITEVERTEX));
@@ -4308,7 +4225,7 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
             lpDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void*)v3, sizeof(SPRITEVERTEX));
 		}
 
-		if (*m_pState->var_pf_darken && 
+		if (*m_pState->var_pf_darken &&
 			(GetCaps()->DestBlendCaps & D3DPBLENDCAPS_DESTCOLOR)
 			)
 		{
@@ -4329,8 +4246,8 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
 			//lpDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void*)v3, sizeof(SPRITEVERTEX));
 
 		}
-		
-		if (*m_pState->var_pf_solarize && 
+
+		if (*m_pState->var_pf_solarize &&
 			(GetCaps()->SrcBlendCaps  & D3DPBLENDCAPS_DESTCOLOR ) &&
 			(GetCaps()->DestBlendCaps & D3DPBLENDCAPS_INVDESTCOLOR)
 			)
@@ -4350,7 +4267,7 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
             lpDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void*)v3, sizeof(SPRITEVERTEX));
 		}
 
-		if (*m_pState->var_pf_invert && 
+		if (*m_pState->var_pf_invert &&
 			(GetCaps()->SrcBlendCaps  & D3DPBLENDCAPS_INVDESTCOLOR )
 			)
 		{
@@ -4361,7 +4278,7 @@ void CPlugin::ShowToUser_NoShaders()//int bRedraw, int nPassOverride)
 			lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 			lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_INVDESTCOLOR);
 			lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
-			
+
             lpDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void*)v3, sizeof(SPRITEVERTEX));
 		}
 
@@ -4392,7 +4309,7 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
         x_aspect_mult = 1.0f/aspect;
 
     // hue shader
-	float shade[4][3] = { 
+	float shade[4][3] = {
 		{ 1.0f, 1.0f, 1.0f },
 		{ 1.0f, 1.0f, 1.0f },
 		{ 1.0f, 1.0f, 1.0f },
@@ -4422,21 +4339,21 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
 		}
 
         // interpolate the 4 colors & apply to all the verts
-        for (int j=0; j<FCGSY; j++) 
+        for (int j=0; j<FCGSY; j++)
         {
-            for (int i=0; i<FCGSX; i++) 
+            for (int i=0; i<FCGSX; i++)
             {
                 MYVERTEX* p = &m_comp_verts[i + j*FCGSX];
                 float x = p->x*0.5f + 0.5f;
-                float y = p->y*0.5f + 0.5f; 
+                float y = p->y*0.5f + 0.5f;
 
                 float col[3] = { 1, 1, 1 };
-                if (fShaderAmount > 0.001f) 
+                if (fShaderAmount > 0.001f)
                 {
-                    for (int c=0; c<3; c++) 
-                        col[c] = shade[0][c]*(  x)*(  y) + 
-                                 shade[1][c]*(1-x)*(  y) + 
-                                 shade[2][c]*(  x)*(1-y) + 
+                    for (int c=0; c<3; c++)
+                        col[c] = shade[0][c]*(  x)*(  y) +
+                                 shade[1][c]*(1-x)*(  y) +
+                                 shade[2][c]*(  x)*(1-y) +
                                  shade[3][c]*(1-x)*(1-y);
                 }
 
@@ -4445,7 +4362,7 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
 
                 // if blending, also set up the alpha values - pull them from the alphas used for the Warped Blit
                 double alpha = 1;
-                if (m_pState->m_bBlending) 
+                if (m_pState->m_bBlending)
                 {
                     x *= (m_nGridX + 1);
                     y *= (m_nGridY + 1);
@@ -4459,9 +4376,9 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
                     double alpha01 = (m_verts[(ny  )*(m_nGridX+1) + (nx+1)].Diffuse >> 24);
                     double alpha10 = (m_verts[(ny+1)*(m_nGridX+1) + (nx  )].Diffuse >> 24);
                     double alpha11 = (m_verts[(ny+1)*(m_nGridX+1) + (nx+1)].Diffuse >> 24);
-                    alpha = alpha00*(1-dx)*(1-dy) + 
-                            alpha01*(  dx)*(1-dy) + 
-                            alpha10*(1-dx)*(  dy) + 
+                    alpha = alpha00*(1-dx)*(1-dy) +
+                            alpha01*(  dx)*(1-dy) +
+                            alpha10*(1-dx)*(  dy) +
                             alpha11*(  dx)*(  dy);
                     alpha /= 255.0f;
                     //if (bFlipAlpha)
@@ -4481,7 +4398,7 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
     if (bAlphaBlend)
     {
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-        if (bFlipAlpha) 
+        if (bFlipAlpha)
         {
             lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_INVSRCALPHA);
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
@@ -4492,10 +4409,10 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
             lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         }
     }
-    else 
+    else
         lpDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
-    // Now do the final composite blit, fullscreen; 
+    // Now do the final composite blit, fullscreen;
     //  or do it twice, alpha-blending, if we're blending between two sets of shaders.
 
     int pass = nPass;
@@ -4508,7 +4425,7 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
         lpDevice->SetVertexDeclaration(m_pMyVertDecl);
         lpDevice->SetVertexShader(m_fallbackShaders_vs.comp.ptr);
         lpDevice->SetPixelShader (si->ptr);
-    
+
         ApplyShaderParams( &(si->params), si->CT, state );
 
         // Hurl the triangles at the video card.
@@ -4535,11 +4452,11 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
                     DWORD d2 = (tempv[i-2].Diffuse >> 24);
                     DWORD d3 = (tempv[i-1].Diffuse >> 24);
                     bool bIsNeeded;
-                    if (nAlphaTestValue) 
+                    if (nAlphaTestValue)
                         bIsNeeded = ((d1 & d2 & d3) < 255);//(d1 < 255) || (d2 < 255) || (d3 < 255);
                     else
                         bIsNeeded = ((d1|d2|d3) > 0);//(d1 > 0) || (d2 > 0) || (d3 > 0);
-                    if (!bIsNeeded) 
+                    if (!bIsNeeded)
                         i -= 3;
                     else
                         prims_queued++;
@@ -4605,7 +4522,7 @@ void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 			//	fSizeX *= aspect;
 			//	fSizeY *= aspect;
 			//}
-            
+
             //fSizeY *= -1;
 		}
 
@@ -4717,7 +4634,7 @@ void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 	}
 
 	WORD indices[7*15*6];
-	i = 0;	
+	i = 0;
 	for (y=0; y<7; y++)
 	{
 		for (x=0; x<15; x++)
@@ -4743,12 +4660,12 @@ void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 		// colors
 		{
 			float t;
-			
+
 			if (m_supertext.bIsSongTitle)
 				t = powf(fProgress, 0.3f)*1.0f;
 			else
 				t = CosineInterp(min(1.0f, (fProgress/m_supertext.fFadeTime)));
-			
+
 			if (it==0)
 				v3[0].Diffuse = D3DCOLOR_RGBA_01(t,t,t,t);
 			else
@@ -4763,12 +4680,12 @@ void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 		switch(it)
 		{
 		case 0:
-			offset_x = 2.0f/(float)m_nTitleTexSizeX; 
-			offset_y = 2.0f/(float)m_nTitleTexSizeY; 
+			offset_x = 2.0f/(float)m_nTitleTexSizeX;
+			offset_y = 2.0f/(float)m_nTitleTexSizeY;
 			break;
 		case 1:
-			offset_x = -4.0f/(float)m_nTitleTexSizeX; 
-			offset_y = -4.0f/(float)m_nTitleTexSizeY; 
+			offset_x = -4.0f/(float)m_nTitleTexSizeX;
+			offset_y = -4.0f/(float)m_nTitleTexSizeY;
 			break;
 		}
 
@@ -4777,18 +4694,18 @@ void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 			v3[i].x += offset_x;
 			v3[i].y += offset_y;
 		}
-	
+
 		if (it == 0)
 		{
 			lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_ZERO);//SRCALPHA);
 			lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
 		}
-		else 
+		else
 		{
 			lpDevice->SetRenderState(D3DRS_SRCBLEND,  D3DBLEND_ONE);//SRCALPHA);
 			lpDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 		}
-		
+
 		lpDevice->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 128, 15*7*6/3, indices, D3DFMT_INDEX16, v3, sizeof(SPRITEVERTEX));
 	}
 

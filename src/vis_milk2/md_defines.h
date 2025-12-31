@@ -4,26 +4,26 @@
 Copyright 2005-2013 Nullsoft, Inc.
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
   * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+    this list of conditions and the following disclaimer.
 
   * Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 
-  * Neither the name of Nullsoft nor the names of its contributors may be used to 
-    endorse or promote products derived from this software without specific prior written permission. 
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+  * Neither the name of Nullsoft nor the names of its contributors may be used to
+    endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
 CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -33,9 +33,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // IDENTIFIERS
 /*
 #define CURRENT_VERSION			220
-#define CURRENT_SUBVERSION		0			// 0=first release, 1=a, 2=b, 3=c... 
+#define CURRENT_SUBVERSION		0			// 0=first release, 1=a, 2=b, 3=c...
 #define MODULEDESC				"MilkDrop 2.2"	// used for module desc (from Winamp/Prefs) + window title for fullscreen mode
-#define DLLDESC					"MilkDrop 2.2"	
+#define DLLDESC					"MilkDrop 2.2"
 #define NAME					"MilkDrop"
 #define TITLE					"MilkDrop"
 #define CLASSNAME               "MilkDrop"  // window class name
@@ -45,12 +45,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#define CONFIG_INIFILE			"milkdrop_config.ini"
 //#define PRESET_INIFILE			"milkdrop_presets.ini"
 #define DEBUGFILEHEADER			"[milkdrop debug file]\n"
-
-// define this to disable expression evaluation:
-//   (...for some reason, evallib kills the debugger)
-#ifdef _DEBUG
-  #define _NO_EXPR_  //FIXME
-#endif
 
 #define MAX_GRID_X 192//128
 #define MAX_GRID_Y 144//96

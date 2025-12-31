@@ -235,7 +235,7 @@ void CTextManager::DrawNow()
     if (m_nMsg[m_b] > 0 || m_nMsg[1-m_b] > 0)  // second condition req'd for clearing text in VJ mode
     {
         D3DXMATRIX Ortho2D;    
-        pMatrixOrthoLH(&Ortho2D, 2.0f, -2.0f, 0.0f, 1.0f);
+        D3DXMatrixOrthoLH(&Ortho2D, 2.0f, -2.0f, 0.0f, 1.0f);
         m_lpDevice->SetTransform(D3DTS_PROJECTION, &Ortho2D);
 
         #define NUM_DIRTY_RECTS 3

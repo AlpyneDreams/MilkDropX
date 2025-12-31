@@ -4,30 +4,29 @@
 Copyright 2005-2013 Nullsoft, Inc.
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
   * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+    this list of conditions and the following disclaimer.
 
   * Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 
-  * Neither the name of Nullsoft nor the names of its contributors may be used to 
-    endorse or promote products derived from this software without specific prior written permission. 
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+  * Neither the name of Nullsoft nor the names of its contributors may be used to
+    endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
 CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "api.h"
 #include "state.h"
 #include "support.h"
 #include "../ns-eel2/ns-eel.h"
@@ -36,6 +35,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <windows.h>
 #include <locale.h>
 #include "resource.h"
+#include <vector>
+#include <assert.h>
+#include "wasabi.h"
 
 extern CPlugin g_plugin;		// declared in main.cpp
 
@@ -44,17 +46,14 @@ extern CPlugin g_plugin;		// declared in main.cpp
 
 
 // These are intended to replace GetPrivateProfileInt/FloatString, which are very slow
-//  for large files (they always start from the top).  (really slow - some preset loads 
+//  for large files (they always start from the top).  (really slow - some preset loads
 //  were taking 90 ms because of these!)
-// The trick here is that we assume the file will be ordered correctly.  If not - if 
+// The trick here is that we assume the file will be ordered correctly.  If not - if
 //  the next line doesn't have the expected token - we rescan from the top.  If the line
 //  is never found, we use the default value, and leave MyGetPos untouched.
 
-#include "../nu/Vector.h"
-#include "gstring.h"
-
-typedef Vector<GStringA> VarNameList;
-typedef Vector<int    > IntList;
+typedef std::vector<std::string> VarNameList;
+typedef std::vector<int> IntList;
 
 
 FILE* fLastFilePtr = NULL;
@@ -63,45 +62,45 @@ bool _GetLineByName(FILE* f, const char* szVarName, char* szRet, int nMaxRetChar
 {
     // lines in the file look like this:  szVarName=szRet
     //                               OR:  szVarName szRet
-    // the part of the line after the '=' sign (or space) goes into szRet.  
+    // the part of the line after the '=' sign (or space) goes into szRet.
     // szVarName can't have any spaces in it.
 
     static int MyLineNum = 0;
     static VarNameList line_varName;
     static IntList     line_value_bytepos;
 
-    if (f != fLastFilePtr) 
-    { 
-        fLastFilePtr = f; 
-        MyLineNum = 0; 
+    if (f != fLastFilePtr)
+    {
+        fLastFilePtr = f;
+        MyLineNum = 0;
         line_varName.clear();
         line_value_bytepos.clear();
-        
+
         // start from beginning of file
         fseek(f, 0, SEEK_SET);
 
         // scan each line in the file for "szVarName=value" pairs, and store info about them.
         #define MAX_VARNAME_LEN 128
         char szThisLineVarName[MAX_VARNAME_LEN];
-        while (1) 
+        while (1)
         {
             char ch;
             int pos = 0;
-            do 
+            do
             {
                 ch = fgetc(f);
                 if (pos < MAX_VARNAME_LEN-3)
                     szThisLineVarName[pos++] = ch;
-            } 
-            while ( ch != '\r' && 
-                    ch != '\n' && 
-                    ch != ' '  && 
-                    ch != '='  && 
+            }
+            while ( ch != '\r' &&
+                    ch != '\n' &&
+                    ch != ' '  &&
+                    ch != '='  &&
                     ch != EOF );
             if (ch == EOF)
                 break;
-            
-            if (ch == '=' || ch == ' ') 
+
+            if (ch == '=' || ch == ' ')
             {
                 szThisLineVarName[pos-1] = 0;  // replace '=' with a null char.
                 int bytepos = ftell(f);
@@ -112,7 +111,7 @@ bool _GetLineByName(FILE* f, const char* szVarName, char* szRet, int nMaxRetChar
 
                 // eat chars up to linefeed or EOF
                 /*
-                do 
+                do
                 {
                     ch = fgetc(f);
                 }
@@ -122,12 +121,12 @@ bool _GetLineByName(FILE* f, const char* szVarName, char* szRet, int nMaxRetChar
             }
             if (ch == EOF)
                 break;
-                        
-            // eat any extra linefeed chars. 
-            do 
+
+            // eat any extra linefeed chars.
+            do
             {
                 ch = fgetc(f);
-            } 
+            }
             while ((ch == '\r' || ch == '\n') && ch != EOF);
             if (ch == EOF)
                 break;
@@ -149,7 +148,7 @@ bool _GetLineByName(FILE* f, const char* szVarName, char* szRet, int nMaxRetChar
                 MyLineNum = i;
                 break;
             }
-        
+
         // otherwise, szVarName not found in the file!
         if (i==N)
             return false;
@@ -205,7 +204,7 @@ void GetFastString(const char* szVarName, const char* szDef, char* szRetLine, in
 {
     if (_GetLineByName(f, szVarName, szRetLine, nMaxChars-1))
         return;
-    // otherwise, copy the default string, being careful not to overflow dest buf.  
+    // otherwise, copy the default string, being careful not to overflow dest buf.
     // (avoid strncpy because it pads with zeroes all the way out to the max size.)
     int x = 0;
     while (szDef[x] && x < nMaxChars)
@@ -528,8 +527,8 @@ void CState::Default(DWORD ApplyFlags)
         m_fPresetStartTime = -1;
     }
 
-    m_nMinPSVersion   = 0;     
-    m_nMaxPSVersion   = 0;     
+    m_nMinPSVersion   = 0;
+    m_nMaxPSVersion   = 0;
 
     m_bBlending				= false;
 
@@ -559,7 +558,7 @@ void CState::Default(DWORD ApplyFlags)
 	    m_fBlur1EdgeDarken      = 0.25f;
     }
 
- 
+
     // wave:
     if (ApplyFlags & STATE_WAVE)
     {
@@ -687,14 +686,14 @@ void CState::Default(DWORD ApplyFlags)
     if (ApplyFlags & STATE_WARP)
     {
         m_szWarpShadersText[0] = 0;
-        m_nWarpPSVersion   = 0;     
+        m_nWarpPSVersion   = 0;
     }
-    
+
     // comp shader
     if (ApplyFlags & STATE_COMP)
     {
         m_szCompShadersText[0] = 0;
-        m_nCompPSVersion   = 0;     
+        m_nCompPSVersion   = 0;
     }
 
     RandomizePresetVars();
@@ -725,7 +724,7 @@ void CState::StartBlendFrom(CState *s_from, float fAnimTime, float fTimespan)
 	s_to->m_bWaveThick				= s_from->m_bWaveThick;
 	s_to->m_bModWaveAlphaByVolume	= s_from->m_bModWaveAlphaByVolume;
 	s_to->m_bMaximizeWaveColor		= s_from->m_bMaximizeWaveColor;
-	s_to->m_bTexWrap				= s_from->m_bTexWrap;			
+	s_to->m_bTexWrap				= s_from->m_bTexWrap;
 	s_to->m_bDarkenCenter			= s_from->m_bDarkenCenter;
 	s_to->m_bRedBlueStereo			= s_from->m_bRedBlueStereo;
 	s_to->m_bBrighten				= s_from->m_bBrighten;
@@ -739,7 +738,7 @@ void CState::StartBlendFrom(CState *s_from, float fAnimTime, float fTimespan)
 	m_bBlending = true;
 	m_fBlendStartTime = fAnimTime;
 	m_fBlendDuration = fTimespan;
-	
+
 	/*
 	//for (int e=0; e<MAX_EVALS; e++)
 	{
@@ -763,8 +762,8 @@ void CState::StartBlendFrom(CState *s_from, float fAnimTime, float fTimespan)
 	lstrcpy(m_szDesc,    s_to->m_szDesc);
 	//lstrcpy(m_szSection, s_to->m_szSection);
 	*/
-	
-	// CBlendableFloats & SuperValues blend over time 
+
+	// CBlendableFloats & SuperValues blend over time
 	m_fGammaAdj      .StartBlendFrom(&s_from->m_fGammaAdj      , fAnimTime, fTimespan);
 	m_fVideoEchoZoom .StartBlendFrom(&s_from->m_fVideoEchoZoom , fAnimTime, fTimespan);
 	m_fVideoEchoAlpha.StartBlendFrom(&s_from->m_fVideoEchoAlpha, fAnimTime, fTimespan);
@@ -889,84 +888,84 @@ bool CState::Export(const wchar_t *szIniFile)
         fprintf(fOut, "PSVERSION_WARP=%d\n",m_nWarpPSVersion);
         fprintf(fOut, "PSVERSION_COMP=%d\n",m_nCompPSVersion);
     }
-    
+
     // just for backwards compatibility; MilkDrop 1 can read MilkDrop 2 presets, minus the new features.
     // (...this section name allows the GetPrivateProfile*() functions to still work on milkdrop 1)
-	fprintf(fOut, "[preset00]\n");    
+	fprintf(fOut, "[preset00]\n");
 
-	fprintf(fOut, "%s=%.3f\n", "fRating",                m_fRating);         
-	fprintf(fOut, "%s=%.3f\n", "fGammaAdj",              m_fGammaAdj.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "fDecay",                 m_fDecay.eval(-1));            
-	fprintf(fOut, "%s=%.3f\n", "fVideoEchoZoom",         m_fVideoEchoZoom.eval(-1));    
-	fprintf(fOut, "%s=%.3f\n", "fVideoEchoAlpha",        m_fVideoEchoAlpha.eval(-1));   
-	fprintf(fOut, "%s=%d\n", "nVideoEchoOrientation",  m_nVideoEchoOrientation);      
+	fprintf(fOut, "%s=%.3f\n", "fRating",                m_fRating);
+	fprintf(fOut, "%s=%.3f\n", "fGammaAdj",              m_fGammaAdj.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fDecay",                 m_fDecay.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fVideoEchoZoom",         m_fVideoEchoZoom.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fVideoEchoAlpha",        m_fVideoEchoAlpha.eval(-1));
+	fprintf(fOut, "%s=%d\n", "nVideoEchoOrientation",  m_nVideoEchoOrientation);
 
-	fprintf(fOut, "%s=%d\n", "nWaveMode",              m_nWaveMode);                  
-	fprintf(fOut, "%s=%d\n", "bAdditiveWaves",         m_bAdditiveWaves);             
-	fprintf(fOut, "%s=%d\n", "bWaveDots",              m_bWaveDots);                  
-	fprintf(fOut, "%s=%d\n", "bWaveThick",             m_bWaveThick);                  
-	fprintf(fOut, "%s=%d\n", "bModWaveAlphaByVolume",  m_bModWaveAlphaByVolume);      
-	fprintf(fOut, "%s=%d\n", "bMaximizeWaveColor",     m_bMaximizeWaveColor);         
-	fprintf(fOut, "%s=%d\n", "bTexWrap",               m_bTexWrap			);         
-	fprintf(fOut, "%s=%d\n", "bDarkenCenter",          m_bDarkenCenter		);         
+	fprintf(fOut, "%s=%d\n", "nWaveMode",              m_nWaveMode);
+	fprintf(fOut, "%s=%d\n", "bAdditiveWaves",         m_bAdditiveWaves);
+	fprintf(fOut, "%s=%d\n", "bWaveDots",              m_bWaveDots);
+	fprintf(fOut, "%s=%d\n", "bWaveThick",             m_bWaveThick);
+	fprintf(fOut, "%s=%d\n", "bModWaveAlphaByVolume",  m_bModWaveAlphaByVolume);
+	fprintf(fOut, "%s=%d\n", "bMaximizeWaveColor",     m_bMaximizeWaveColor);
+	fprintf(fOut, "%s=%d\n", "bTexWrap",               m_bTexWrap			);
+	fprintf(fOut, "%s=%d\n", "bDarkenCenter",          m_bDarkenCenter		);
 	fprintf(fOut, "%s=%d\n", "bRedBlueStereo",         m_bRedBlueStereo     );
-	fprintf(fOut, "%s=%d\n", "bBrighten",              m_bBrighten			);         
-	fprintf(fOut, "%s=%d\n", "bDarken",                m_bDarken			);         
-	fprintf(fOut, "%s=%d\n", "bSolarize",              m_bSolarize			);         
-	fprintf(fOut, "%s=%d\n", "bInvert",                m_bInvert			);         
+	fprintf(fOut, "%s=%d\n", "bBrighten",              m_bBrighten			);
+	fprintf(fOut, "%s=%d\n", "bDarken",                m_bDarken			);
+	fprintf(fOut, "%s=%d\n", "bSolarize",              m_bSolarize			);
+	fprintf(fOut, "%s=%d\n", "bInvert",                m_bInvert			);
 
-	fprintf(fOut, "%s=%.3f\n", "fWaveAlpha",             m_fWaveAlpha.eval(-1)); 		  
-	fprintf(fOut, "%s=%.3f\n", "fWaveScale",             m_fWaveScale.eval(-1));        
-	fprintf(fOut, "%s=%.3f\n", "fWaveSmoothing",         m_fWaveSmoothing.eval(-1));    
-	fprintf(fOut, "%s=%.3f\n", "fWaveParam",             m_fWaveParam.eval(-1));        
+	fprintf(fOut, "%s=%.3f\n", "fWaveAlpha",             m_fWaveAlpha.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fWaveScale",             m_fWaveScale.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fWaveSmoothing",         m_fWaveSmoothing.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fWaveParam",             m_fWaveParam.eval(-1));
 	fprintf(fOut, "%s=%.3f\n", "fModWaveAlphaStart",     m_fModWaveAlphaStart.eval(-1));
-	fprintf(fOut, "%s=%.3f\n", "fModWaveAlphaEnd",       m_fModWaveAlphaEnd.eval(-1));  
-	fprintf(fOut, "%s=%.3f\n", "fWarpAnimSpeed",         m_fWarpAnimSpeed);             
-	fprintf(fOut, "%s=%.3f\n", "fWarpScale",             m_fWarpScale.eval(-1));        
-	fprintf(fOut, "%s=%.5f\n", "fZoomExponent",          m_fZoomExponent.eval(-1));     
-	fprintf(fOut, "%s=%.3f\n", "fShader",                m_fShader.eval(-1));           
+	fprintf(fOut, "%s=%.3f\n", "fModWaveAlphaEnd",       m_fModWaveAlphaEnd.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fWarpAnimSpeed",         m_fWarpAnimSpeed);
+	fprintf(fOut, "%s=%.3f\n", "fWarpScale",             m_fWarpScale.eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "fZoomExponent",          m_fZoomExponent.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "fShader",                m_fShader.eval(-1));
 
-	fprintf(fOut, "%s=%.5f\n", "zoom",                   m_fZoom      .eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "rot",                    m_fRot       .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "cx",                     m_fRotCX     .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "cy",                     m_fRotCY     .eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "dx",                     m_fXPush     .eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "dy",                     m_fYPush     .eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "warp",                   m_fWarpAmount.eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "sx",                     m_fStretchX  .eval(-1));       
-	fprintf(fOut, "%s=%.5f\n", "sy",                     m_fStretchY  .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "wave_r",                 m_fWaveR     .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "wave_g",                 m_fWaveG     .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "wave_b",                 m_fWaveB     .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "wave_x",                 m_fWaveX     .eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "wave_y",                 m_fWaveY     .eval(-1));       
+	fprintf(fOut, "%s=%.5f\n", "zoom",                   m_fZoom      .eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "rot",                    m_fRot       .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "cx",                     m_fRotCX     .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "cy",                     m_fRotCY     .eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "dx",                     m_fXPush     .eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "dy",                     m_fYPush     .eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "warp",                   m_fWarpAmount.eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "sx",                     m_fStretchX  .eval(-1));
+	fprintf(fOut, "%s=%.5f\n", "sy",                     m_fStretchY  .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "wave_r",                 m_fWaveR     .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "wave_g",                 m_fWaveG     .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "wave_b",                 m_fWaveB     .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "wave_x",                 m_fWaveX     .eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "wave_y",                 m_fWaveY     .eval(-1));
 
-	fprintf(fOut, "%s=%.3f\n", "ob_size",             m_fOuterBorderSize.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ob_r",                m_fOuterBorderR.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ob_g",                m_fOuterBorderG.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ob_b",                m_fOuterBorderB.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ob_a",                m_fOuterBorderA.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ib_size",             m_fInnerBorderSize.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ib_r",                m_fInnerBorderR.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ib_g",                m_fInnerBorderG.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ib_b",                m_fInnerBorderB.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "ib_a",                m_fInnerBorderA.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "nMotionVectorsX",     m_fMvX.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "nMotionVectorsY",     m_fMvY.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "mv_dx",               m_fMvDX.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "mv_dy",               m_fMvDY.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "mv_l",                m_fMvL.eval(-1));         
-	fprintf(fOut, "%s=%.3f\n", "mv_r",                m_fMvR.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "mv_g",                m_fMvG.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "mv_b",                m_fMvB.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "mv_a",                m_fMvA.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b1n",                 m_fBlur1Min.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b2n",                 m_fBlur2Min.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b3n",                 m_fBlur3Min.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b1x",                 m_fBlur1Max.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b2x",                 m_fBlur2Max.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b3x",                 m_fBlur3Max.eval(-1));       
-	fprintf(fOut, "%s=%.3f\n", "b1ed",                m_fBlur1EdgeDarken.eval(-1));       
+	fprintf(fOut, "%s=%.3f\n", "ob_size",             m_fOuterBorderSize.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ob_r",                m_fOuterBorderR.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ob_g",                m_fOuterBorderG.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ob_b",                m_fOuterBorderB.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ob_a",                m_fOuterBorderA.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ib_size",             m_fInnerBorderSize.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ib_r",                m_fInnerBorderR.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ib_g",                m_fInnerBorderG.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ib_b",                m_fInnerBorderB.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "ib_a",                m_fInnerBorderA.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "nMotionVectorsX",     m_fMvX.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "nMotionVectorsY",     m_fMvY.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_dx",               m_fMvDX.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_dy",               m_fMvDY.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_l",                m_fMvL.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_r",                m_fMvR.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_g",                m_fMvG.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_b",                m_fMvB.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "mv_a",                m_fMvA.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b1n",                 m_fBlur1Min.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b2n",                 m_fBlur2Min.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b3n",                 m_fBlur3Min.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b1x",                 m_fBlur1Max.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b2x",                 m_fBlur2Max.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b3x",                 m_fBlur3Max.eval(-1));
+	fprintf(fOut, "%s=%.3f\n", "b1ed",                m_fBlur1EdgeDarken.eval(-1));
 
     for (int i=0; i<MAX_CUSTOM_WAVES; i++)
         m_wave[i].Export(fOut, L"dummy_filename", i);
@@ -976,8 +975,8 @@ bool CState::Export(const wchar_t *szIniFile)
 
 	// write out arbitrary expressions, one line at a time
     WriteCode(fOut, i, m_szPerFrameInit, "per_frame_init_");
-    WriteCode(fOut, i, m_szPerFrameExpr, "per_frame_"); 
-    WriteCode(fOut, i, m_szPerPixelExpr, "per_pixel_"); 
+    WriteCode(fOut, i, m_szPerFrameExpr, "per_frame_");
+    WriteCode(fOut, i, m_szPerPixelExpr, "per_pixel_");
     if (m_nWarpPSVersion >= MD2_PS_2_0)
         WriteCode(fOut, i, m_szWarpShadersText, "warp_", true);
     if (m_nCompPSVersion >= MD2_PS_2_0)
@@ -1071,7 +1070,7 @@ int  CShape::Export(FILE* fOut, const wchar_t *szFile, int i)
 
 void ReadCode(FILE* f, char* pStr, char* prefix)
 {
-    if (!pStr) 
+    if (!pStr)
         return;
     pStr[0] = 0;
 
@@ -1086,7 +1085,7 @@ void ReadCode(FILE* f, char* pStr, char* prefix)
 
 	while (!bDone)
 	{
-		sprintf(szLineName, "%s%d", prefix, line); 
+		sprintf(szLineName, "%s%d", prefix, line);
 
 		GetFastString(szLineName, "~!@#$", szLine, MAX_BIGSTRING_LEN, f);	// fixme
 		len = strlen(szLine);
@@ -1096,13 +1095,13 @@ void ReadCode(FILE* f, char* pStr, char* prefix)
 		{
 			bDone = true;
 		}
-		else 
+		else
 		{
             sprintf(&pStr[char_pos], "%s%c", (szLine[0]=='`') ? &szLine[1] : szLine, LINEFEED_CONTROL_CHAR);
             if (szLine[0] == '`')
                 len--;
 		}
-	
+
 		char_pos += len + 1;
 		line++;
 	}
@@ -1151,10 +1150,10 @@ void ReadCode(FILE* f, char* pStr, char* prefix)
                 }
             }
 		}
-		
+
 		while (!bDone)
 		{
-			sprintf(szLineName, "%s%d", prefix, line); 
+			sprintf(szLineName, "%s%d", prefix, line);
 
 			GetPrivateProfileString(szSectionName, szLineName, "~!@#$", szLine, MAX_BIGSTRING_LEN, szIniFile);	// fixme
 			len = strlen(szLine);
@@ -1164,11 +1163,11 @@ void ReadCode(FILE* f, char* pStr, char* prefix)
 			{
 				bDone = true;
 			}
-			else 
+			else
 			{
 				sprintf(&pStr[char_pos], "%s%c", szLine, LINEFEED_CONTROL_CHAR);
 			}
-		
+
 			char_pos += len + 1;
 			line++;
 		}
@@ -1265,9 +1264,9 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
 {
     // if any ApplyFlags are missing, the settings will be copied from pOldState.  =)
 
-    if (!pOldState) 
+    if (!pOldState)
         ApplyFlags = STATE_ALL;
-    
+
     if (ApplyFlags!=STATE_ALL && this != pOldState)
     {
         assert(pOldState);
@@ -1276,7 +1275,7 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
         // clear all the copied code pointers, WITHOUT actually freeing it (since ptrs were copied)
         // so that the Default() call below won't release pOldState's copied pointers.
         // [all expressions will be recompiled @ end of this fn, whether we updated them or not]
-        FreeVarsAndCode(false);  
+        FreeVarsAndCode(false);
     }
 
     // apply defaults for the stuff we will overwrite.
@@ -1296,13 +1295,13 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
 		    // copy get the filename (without the path)
 		    const wchar_t *p = wcsrchr(szIniFile, '\\');
 		    if (p==NULL) p = szIniFile;
-		    lstrcpyW(m_szDesc, p+1);		
+		    lstrcpyW(m_szDesc, p+1);
 
 		    // next remove the extension
 		    RemoveExtension(m_szDesc);
 	    }
     }
-    
+
     FILE* f = _wfopen(szIniFile, L"rb");
     if (!f)
         return false;
@@ -1310,7 +1309,7 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
     int nMilkdropPresetVersion = GetFastInt("MILKDROP_PRESET_VERSION",100,f);
     //if (ApplyFlags != STATE_ALL)
     //    nMilkdropPresetVersion = CUR_MILKDROP_PRESET_VERSION;  //if we're mashing up, force it up to now
-    
+
 
     int nWarpPSVersionInFile;
     int nCompPSVersionInFile;
@@ -1342,13 +1341,13 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
 	    m_bSolarize				= (GetFastInt ("bSolarize",m_bSolarize	,f) != 0);
 	    m_bInvert				= (GetFastInt ("bInvert"  ,m_bInvert	,f) != 0);
 	    m_fShader               = GetFastFloat("fShader",m_fShader.eval(-1),f);
-        m_fBlur1Min			= GetFastFloat("b1n",    m_fBlur1Min.eval(-1),f);       
-        m_fBlur2Min			= GetFastFloat("b2n",    m_fBlur2Min.eval(-1),f);       
-        m_fBlur3Min			= GetFastFloat("b3n",    m_fBlur3Min.eval(-1),f);       
-        m_fBlur1Max			= GetFastFloat("b1x",    m_fBlur1Max.eval(-1),f);       
-        m_fBlur2Max			= GetFastFloat("b2x",    m_fBlur2Max.eval(-1),f);       
-        m_fBlur3Max			= GetFastFloat("b3x",    m_fBlur3Max.eval(-1),f);       
-        m_fBlur1EdgeDarken  = GetFastFloat("b1ed",   m_fBlur1EdgeDarken.eval(-1),f); 
+        m_fBlur1Min			= GetFastFloat("b1n",    m_fBlur1Min.eval(-1),f);
+        m_fBlur2Min			= GetFastFloat("b2n",    m_fBlur2Min.eval(-1),f);
+        m_fBlur3Min			= GetFastFloat("b3n",    m_fBlur3Min.eval(-1),f);
+        m_fBlur1Max			= GetFastFloat("b1x",    m_fBlur1Max.eval(-1),f);
+        m_fBlur2Max			= GetFastFloat("b2x",    m_fBlur2Max.eval(-1),f);
+        m_fBlur3Max			= GetFastFloat("b3x",    m_fBlur3Max.eval(-1),f);
+        m_fBlur1EdgeDarken  = GetFastFloat("b1ed",   m_fBlur1EdgeDarken.eval(-1),f);
     }
 
     // wave:
@@ -1366,21 +1365,21 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
 	    m_fWaveParam            = GetFastFloat("fWaveParam",m_fWaveParam.eval(-1),f);
 	    m_fModWaveAlphaStart    = GetFastFloat("fModWaveAlphaStart",m_fModWaveAlphaStart.eval(-1),f);
 	    m_fModWaveAlphaEnd      = GetFastFloat("fModWaveAlphaEnd",m_fModWaveAlphaEnd.eval(-1),f);
-	    m_fWaveR				= GetFastFloat("wave_r",m_fRot.eval(-1),f);	
-	    m_fWaveG				= GetFastFloat("wave_g",m_fRot.eval(-1),f);	
-	    m_fWaveB				= GetFastFloat("wave_b",m_fRot.eval(-1),f);	
-	    m_fWaveX				= GetFastFloat("wave_x",m_fRot.eval(-1),f);	
-	    m_fWaveY				= GetFastFloat("wave_y",m_fRot.eval(-1),f);	
+	    m_fWaveR				= GetFastFloat("wave_r",m_fRot.eval(-1),f);
+	    m_fWaveG				= GetFastFloat("wave_g",m_fRot.eval(-1),f);
+	    m_fWaveB				= GetFastFloat("wave_b",m_fRot.eval(-1),f);
+	    m_fWaveX				= GetFastFloat("wave_x",m_fRot.eval(-1),f);
+	    m_fWaveY				= GetFastFloat("wave_y",m_fRot.eval(-1),f);
 	    m_fMvX				= GetFastFloat("nMotionVectorsX",  m_fMvX.eval(-1),f);
 	    m_fMvY           	= GetFastFloat("nMotionVectorsY",  m_fMvY.eval(-1),f);
 	    m_fMvDX				= GetFastFloat("mv_dx",  m_fMvDX.eval(-1),f);
 	    m_fMvDY				= GetFastFloat("mv_dy",  m_fMvDY.eval(-1),f);
 	    m_fMvL				= GetFastFloat("mv_l",   m_fMvL.eval(-1),f);
-	    m_fMvR				= GetFastFloat("mv_r",   m_fMvR.eval(-1),f);	
-	    m_fMvG				= GetFastFloat("mv_g",   m_fMvG.eval(-1),f);	
-	    m_fMvB				= GetFastFloat("mv_b",   m_fMvB.eval(-1),f);	
+	    m_fMvR				= GetFastFloat("mv_r",   m_fMvR.eval(-1),f);
+	    m_fMvG				= GetFastFloat("mv_g",   m_fMvG.eval(-1),f);
+	    m_fMvB				= GetFastFloat("mv_b",   m_fMvB.eval(-1),f);
 	    m_fMvA				= (GetFastInt ("bMotionVectorsOn",false,f) == 0) ? 0.0f : 1.0f; // for backwards compatibility
-	    m_fMvA				= GetFastFloat("mv_a",   m_fMvA.eval(-1),f);	
+	    m_fMvA				= GetFastFloat("mv_a",   m_fMvA.eval(-1),f);
         for (int i=0; i<MAX_CUSTOM_WAVES; i++)
         {
             m_wave[i].Import(f, L"dummy_filename", i);
@@ -1394,30 +1393,30 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
     // motion:
     if (ApplyFlags & STATE_MOTION)
     {
-	    m_fZoom					= GetFastFloat("zoom",m_fZoom.eval(-1),f);	
-	    m_fRot					= GetFastFloat("rot",m_fRot.eval(-1),f);	
-	    m_fRotCX				= GetFastFloat("cx",m_fRotCX.eval(-1),f);	
-	    m_fRotCY				= GetFastFloat("cy",m_fRotCY.eval(-1),f);	
-	    m_fXPush				= GetFastFloat("dx",m_fXPush.eval(-1),f);	
-	    m_fYPush				= GetFastFloat("dy",m_fYPush.eval(-1),f);	
-	    m_fWarpAmount			= GetFastFloat("warp",m_fWarpAmount.eval(-1),f);	
-	    m_fStretchX				= GetFastFloat("sx",m_fStretchX.eval(-1),f);	
-	    m_fStretchY				= GetFastFloat("sy",m_fStretchY.eval(-1),f);	
+	    m_fZoom					= GetFastFloat("zoom",m_fZoom.eval(-1),f);
+	    m_fRot					= GetFastFloat("rot",m_fRot.eval(-1),f);
+	    m_fRotCX				= GetFastFloat("cx",m_fRotCX.eval(-1),f);
+	    m_fRotCY				= GetFastFloat("cy",m_fRotCY.eval(-1),f);
+	    m_fXPush				= GetFastFloat("dx",m_fXPush.eval(-1),f);
+	    m_fYPush				= GetFastFloat("dy",m_fYPush.eval(-1),f);
+	    m_fWarpAmount			= GetFastFloat("warp",m_fWarpAmount.eval(-1),f);
+	    m_fStretchX				= GetFastFloat("sx",m_fStretchX.eval(-1),f);
+	    m_fStretchY				= GetFastFloat("sy",m_fStretchY.eval(-1),f);
         m_bTexWrap			    = (GetFastInt ("bTexWrap", m_bTexWrap,f) != 0);
 	    m_bDarkenCenter			= (GetFastInt ("bDarkenCenter", m_bDarkenCenter,f) != 0);
 	    m_fWarpAnimSpeed        = GetFastFloat("fWarpAnimSpeed",m_fWarpAnimSpeed,f);
 	    m_fWarpScale            = GetFastFloat("fWarpScale",m_fWarpScale.eval(-1),f);
 	    m_fZoomExponent         = GetFastFloat("fZoomExponent",m_fZoomExponent.eval(-1),f);
-	    m_fOuterBorderSize	= GetFastFloat("ob_size",m_fOuterBorderSize.eval(-1),f);	
-	    m_fOuterBorderR		= GetFastFloat("ob_r",   m_fOuterBorderR.eval(-1),f);	
-	    m_fOuterBorderG		= GetFastFloat("ob_g",   m_fOuterBorderG.eval(-1),f);	
-	    m_fOuterBorderB		= GetFastFloat("ob_b",   m_fOuterBorderB.eval(-1),f);	
-	    m_fOuterBorderA		= GetFastFloat("ob_a",   m_fOuterBorderA.eval(-1),f);	
-	    m_fInnerBorderSize	= GetFastFloat("ib_size",m_fInnerBorderSize.eval(-1),f);	
-	    m_fInnerBorderR		= GetFastFloat("ib_r",   m_fInnerBorderR.eval(-1),f);	
-	    m_fInnerBorderG		= GetFastFloat("ib_g",   m_fInnerBorderG.eval(-1),f);	
-	    m_fInnerBorderB		= GetFastFloat("ib_b",   m_fInnerBorderB.eval(-1),f);	
-	    m_fInnerBorderA		= GetFastFloat("ib_a",   m_fInnerBorderA.eval(-1),f);	
+	    m_fOuterBorderSize	= GetFastFloat("ob_size",m_fOuterBorderSize.eval(-1),f);
+	    m_fOuterBorderR		= GetFastFloat("ob_r",   m_fOuterBorderR.eval(-1),f);
+	    m_fOuterBorderG		= GetFastFloat("ob_g",   m_fOuterBorderG.eval(-1),f);
+	    m_fOuterBorderB		= GetFastFloat("ob_b",   m_fOuterBorderB.eval(-1),f);
+	    m_fOuterBorderA		= GetFastFloat("ob_a",   m_fOuterBorderA.eval(-1),f);
+	    m_fInnerBorderSize	= GetFastFloat("ib_size",m_fInnerBorderSize.eval(-1),f);
+	    m_fInnerBorderR		= GetFastFloat("ib_r",   m_fInnerBorderR.eval(-1),f);
+	    m_fInnerBorderG		= GetFastFloat("ib_g",   m_fInnerBorderG.eval(-1),f);
+	    m_fInnerBorderB		= GetFastFloat("ib_b",   m_fInnerBorderB.eval(-1),f);
+	    m_fInnerBorderA		= GetFastFloat("ib_a",   m_fInnerBorderA.eval(-1),f);
         //m_szPerFrameInit[0] = 0;
         //m_szPerFrameExpr[0] = 0;
         //m_szPerPixelExpr[0] = 0;
@@ -1425,19 +1424,19 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
         ReadCode(f, m_szPerFrameExpr, "per_frame_");
         ReadCode(f, m_szPerPixelExpr, "per_pixel_");
     }
-    
+
     // warp shader
     if (ApplyFlags & STATE_WARP)
     {
         //m_szWarpShadersText[0] = 0;
         ReadCode(f, m_szWarpShadersText, "warp_");
-        if (!m_szWarpShadersText[0]) 
+        if (!m_szWarpShadersText[0])
             g_plugin.GenWarpPShaderText(m_szWarpShadersText, m_fDecay.eval(-1), m_bTexWrap);
         m_nWarpPSVersion = nWarpPSVersionInFile;
     }
-    
+
     // comp shader
-    if (ApplyFlags & STATE_COMP) 
+    if (ApplyFlags & STATE_COMP)
     {
         //m_szCompShadersText[0] = 0;
         ReadCode(f, m_szCompShadersText, "comp_");
@@ -1448,7 +1447,7 @@ bool CState::Import(const wchar_t *szIniFile, float fTime, CState* pOldState, DW
 
     m_nMaxPSVersion = max(m_nWarpPSVersion, m_nCompPSVersion);
     m_nMinPSVersion = min(m_nWarpPSVersion, m_nCompPSVersion);
-	
+
 
 	RecompileExpressions();
 
@@ -1532,11 +1531,11 @@ void CState::StripLinefeedCharsAndComments(char *src, char *dest)
 	int i2 = 0;
 	int len = strlen(src);
 	int bComment = false;
-	for (int i=0; i<len; i++)		
+	for (int i=0; i<len; i++)
 	{
 		if (bComment)
 		{
-			if (src[i] == LINEFEED_CONTROL_CHAR)	
+			if (src[i] == LINEFEED_CONTROL_CHAR)
 				bComment = false;
 		}
 		else
@@ -1613,9 +1612,9 @@ void CState::RecompileExpressions(int flags, int bReInit)
 		RegisterBuiltInVariables(flags);
 	}
 
-	// QUICK FIX: if the code strings ONLY have spaces and linefeeds, erase them, 
+	// QUICK FIX: if the code strings ONLY have spaces and linefeeds, erase them,
 	// because for some strange reason this causes errors in compileCode().
-    int n2 = 3 + MAX_CUSTOM_WAVES*3 + MAX_CUSTOM_SHAPES*2; 
+    int n2 = 3 + MAX_CUSTOM_WAVES*3 + MAX_CUSTOM_SHAPES*2;
 	for (int n=0; n<n2; n++)
 	{
 		char *pOrig;
@@ -1653,10 +1652,10 @@ void CState::RecompileExpressions(int flags, int bReInit)
 	}
 
     // COMPILE NEW CODE.
-	#ifndef _NO_EXPR_   
+	#ifndef _NO_EXPR_
     {
     	// clear any old error msg.:
-    	//g_plugin.m_fShowUserMessageUntilThisTime = g_plugin.GetTime();	
+    	//g_plugin.m_fShowUserMessageUntilThisTime = g_plugin.GetTime();
 
 	    char buf[MAX_BIGSTRING_LEN*3];
 
@@ -1666,12 +1665,12 @@ void CState::RecompileExpressions(int flags, int bReInit)
 		    StripLinefeedCharsAndComments(m_szPerFrameInit, buf);
 	        if (buf[0] && bReInit)
 	        {
-		        NSEEL_CODEHANDLE	pf_codehandle_init;	
+		        NSEEL_CODEHANDLE	pf_codehandle_init;
 
 			    if ( ! (pf_codehandle_init = NSEEL_code_compile(m_pf_eel, buf)))
 			    {
                     wchar_t buf[1024];
-				    swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_PRESET_INIT_CODE), m_szDesc);
+				    swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_PRESET_INIT_CODE), m_szDesc);
                     g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 
                     for (int vi=0; vi<NUM_Q_VAR; vi++)
@@ -1702,7 +1701,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			    if ( ! (m_pf_codehandle = NSEEL_code_compile(m_pf_eel, buf)))
 			    {
                     wchar_t buf[1024];
-				    swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_PER_FRAME_CODE), m_szDesc);
+				    swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_PER_FRAME_CODE), m_szDesc);
                     g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 			    }
 	        }
@@ -1714,11 +1713,11 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			    if ( ! (m_pp_codehandle = NSEEL_code_compile(m_pv_eel, buf)))
 			    {
                     wchar_t buf[1024];
-				    swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_PER_VERTEX_CODE), m_szDesc);
+				    swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_PER_VERTEX_CODE), m_szDesc);
                     g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 			    }
 	        }
-	        
+
             //resetVars(NULL);
         }
 
@@ -1732,11 +1731,11 @@ void CState::RecompileExpressions(int flags, int bReInit)
                 {
 		            #ifndef _NO_EXPR_
 		            {
-		                NSEEL_CODEHANDLE	codehandle_temp;	
+		                NSEEL_CODEHANDLE	codehandle_temp;
 			            if ( ! (codehandle_temp = NSEEL_code_compile(m_wave[i].m_pf_eel, buf)))
 			            {
                             wchar_t buf[1024];
-				            swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_INIT_CODE), m_szDesc, i);
+				            swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_INIT_CODE), m_szDesc, i);
                             g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 
                             for (int vi=0; vi<NUM_Q_VAR; vi++)
@@ -1747,9 +1746,9 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			            else
 			            {
 				            // now execute the code, save the values of t1..t8, and clean up the code!
-                    
+
                             g_plugin.LoadCustomWavePerFrameEvallibVars(g_plugin.m_pState, i);
-                                // note: q values at this point will actually be same as 
+                                // note: q values at this point will actually be same as
                                 //       q_values_after_init_code[], since no per-frame code
                                 //       has actually been executed yet!
 
@@ -1773,7 +1772,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			            if ( ! (m_wave[i].m_pf_codehandle = NSEEL_code_compile(m_wave[i].m_pf_eel, buf)))
 			            {
                             wchar_t buf[1024];
-				            swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_PER_FRAME_CODE), m_szDesc, i);
+				            swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_PER_FRAME_CODE), m_szDesc, i);
                             g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 			            }
                     #endif
@@ -1786,7 +1785,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			        if ( ! (m_wave[i].m_pp_codehandle = NSEEL_code_compile(m_wave[i].m_pp_eel, buf)))
 			        {
                         wchar_t buf[1024];
-				        swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_PER_POINT_CODE), m_szDesc, i);
+				        swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_WAVE_X_PER_POINT_CODE), m_szDesc, i);
                         g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 			        }
                 }
@@ -1803,11 +1802,11 @@ void CState::RecompileExpressions(int flags, int bReInit)
                 {
 		            #ifndef _NO_EXPR_
 		            {
-		                NSEEL_CODEHANDLE	codehandle_temp;	
+		                NSEEL_CODEHANDLE	codehandle_temp;
 			            if ( ! (codehandle_temp = NSEEL_code_compile(m_shape[i].m_pf_eel, buf)))
 			            {
                             wchar_t buf[1024];
-				            swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_SHAPE_X_INIT_CODE), m_szDesc, i);
+				            swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_SHAPE_X_INIT_CODE), m_szDesc, i);
                             g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 
                             for (int vi=0; vi<NUM_Q_VAR; vi++)
@@ -1818,9 +1817,9 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			            else
 			            {
 				            // now execute the code, save the values of q1..q8, and clean up the code!
-                    
+
                             g_plugin.LoadCustomShapePerFrameEvallibVars(g_plugin.m_pState, i, 0);
-                                // note: q values at this point will actually be same as 
+                                // note: q values at this point will actually be same as
                                 //       q_values_after_init_code[], since no per-frame code
                                 //       has actually been executed yet!
 
@@ -1844,7 +1843,7 @@ void CState::RecompileExpressions(int flags, int bReInit)
 			            if ( ! (m_shape[i].m_pf_codehandle = NSEEL_code_compile(m_shape[i].m_pf_eel, buf)))
 			            {
                             wchar_t buf[1024];
-				            swprintf(buf, WASABI_API_LNGSTRINGW(IDS_WARNING_PRESET_X_ERROR_IN_SHAPE_X_PER_FRAME_CODE), m_szDesc, i);
+				            swprintf(buf, wasabiApiLangString(IDS_WARNING_PRESET_X_ERROR_IN_SHAPE_X_PER_FRAME_CODE), m_szDesc, i);
                             g_plugin.AddError(buf, 6.0f, ERR_PRESET, true);
 			            }
 		            #endif
@@ -1880,7 +1879,7 @@ void CState::RandomizePresetVars()
     int k = 0;
     do
     {
-        for (int i=0; i<4; i++) 
+        for (int i=0; i<4; i++)
         {
             float xlate_mult = 1;//(j==0) ? 1 : 0;
             float rot_mult = 0.9f*powf(k/8.0f, 3.2f);

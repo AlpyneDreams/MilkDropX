@@ -4,26 +4,26 @@
 Copyright 2005-2013 Nullsoft, Inc.
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
   * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer. 
+    this list of conditions and the following disclaimer.
 
   * Redistributions in binary form must reproduce the above copyright notice,
     this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution. 
+    and/or other materials provided with the distribution.
 
-  * Neither the name of Nullsoft nor the names of its contributors may be used to 
-    endorse or promote products derived from this software without specific prior written permission. 
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+  * Neither the name of Nullsoft nor the names of its contributors may be used to
+    endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
 CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -36,12 +36,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "support.h"
 #include "texmgr.h"
 #include "state.h"
-#include "../nu/Vector.h"
-
-#include "gstring.h"
+#include <vector>
 #include "../ns-eel2/ns-eel.h"
 
-
+//#include <core/sdk/IPlaybackService.h>
 
 extern "C" int (*warand)(void);
 
@@ -52,7 +50,7 @@ typedef char* CHARPTR;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 #define MY_FFT_SAMPLES 512     // for old [pre-vms] milkdrop sound analysis
-typedef struct 
+typedef struct
 {
 	float   imm[3];			// bass, mids, treble (absolute)
 	float	imm_rel[3];		// bass, mids, treble (relative to song; 1=avg, 0.9~below, 1.1~above)
@@ -87,7 +85,7 @@ typedef struct
 	int		nColorR;    // 0..255
 	int		nColorG;    // 0..255
 	int		nColorB;    // 0..255
-} 
+}
 td_custom_msg_font;
 
 enum
@@ -98,14 +96,6 @@ enum
 	MD2_PS_3_0 = 4,
 	MD2_PS_4_0 = 5, // not supported by milkdrop
 };
-/*
-typedef struct
-{
-    char szFace[256];
-    int nSize;
-    int bBold;
-    int bItalic;
-} td_titlefontinfo;*/
 
 typedef struct
 {
@@ -118,7 +108,7 @@ typedef struct
 	float	growth;
 	float	fTime;	// total time to display the message, in seconds
 	float	fFade;	// % (0..1) of the time that is spent fading in
-	
+
 	// overrides
 	int     bOverrideBold;
 	int     bOverrideItal;
@@ -137,7 +127,7 @@ typedef struct
 	wchar_t szFace[128];
 
 	wchar_t	szText[256];
-} 
+}
 td_custom_msg;
 
 typedef struct
@@ -166,7 +156,7 @@ td_supertext;
 typedef struct
 {
     wchar_t        texname[256];   // ~filename, but without path or extension!
-    LPDIRECT3DBASETEXTURE9 texptr;    
+    LPDIRECT3DBASETEXTURE9 texptr;
     int                w,h,d;
     //D3DXHANDLE         texsize_param;
     bool               bEvictable;
@@ -176,29 +166,29 @@ typedef struct
 
 typedef struct
 {
-    GString    texname;  // just for ref
+    std::wstring    texname;  // just for ref
     D3DXHANDLE texsize_param;
     int        w,h;
 } TexSizeParamInfo;
 
 typedef struct
 {
-    LPDIRECT3DBASETEXTURE9 texptr;    
+    LPDIRECT3DBASETEXTURE9 texptr;
     bool               bBilinear;
     bool               bWrap;
 } SamplerInfo;
 
 typedef struct
 {
-    GString   msg;
+    std::wstring   msg;
     bool      bBold;  // true == red bkg; false == black bkg
     float     birthTime;
     float     expireTime;
     int       category;
 } ErrorMsg;
-typedef Vector<ErrorMsg> ErrorMsgList;
 
-typedef Vector<CShaderParams*> CShaderParamsList;
+typedef std::vector<ErrorMsg> ErrorMsgList;
+typedef std::vector<CShaderParams*> CShaderParamsList;
 
 class CShaderParams
 {
@@ -209,10 +199,10 @@ public:
     D3DXHANDLE const_handles[24];
     D3DXHANDLE q_const_handles[(NUM_Q_VAR+3)/4];
     D3DXHANDLE rot_mat[24];
-            
-    typedef Vector<TexSizeParamInfo> TexSizeParamInfoList;
+
+    typedef std::vector<TexSizeParamInfo> TexSizeParamInfoList;
     TexSizeParamInfoList texsize_params;
-    
+
     // sampler stages for various PS texture bindings:
     //int texbind_vs;
     //int texbind_disk[32];
@@ -250,7 +240,7 @@ public:
     void Clear();
 };
 
-typedef struct 
+typedef struct
 {
     VShaderInfo vs;
     PShaderInfo ps;
@@ -258,44 +248,29 @@ typedef struct
 
 typedef struct
 {
-    PShaderInfo warp; 
+    PShaderInfo warp;
     PShaderInfo comp;
 } PShaderSet;
 
 typedef struct
 {
-    VShaderInfo warp; 
+    VShaderInfo warp;
     VShaderInfo comp;
 } VShaderSet;
 
-/*
 typedef struct
 {
-    void*                ptr;  // to IDirect3DPixelShader9 or IDirect3DVertexShader9
-    LPD3DXCONSTANTTABLE  CT;
-    CShaderParams        params;
-} ShaderInfo;
-
-typedef struct
-{
-    ShaderInfo warp;
-    ShaderInfo comp;
-} ShaderSet;
-*/
-
-typedef struct 
-{
-    GString  szFilename;    // without path
+    std::wstring  szFilename;    // without path
     float    fRatingThis;
     float    fRatingCum;
 } PresetInfo;
-typedef Vector<PresetInfo> PresetList;
+typedef std::vector<PresetInfo> PresetList;
 
 
 class CPlugin : public CPluginShell
 {
 public:
-    
+
     //====[ 1. members added to create this specific example plugin: ]================================================
 
         /// CONFIG PANEL SETTINGS THAT WE'VE ADDED (TAB #2)
@@ -312,7 +287,7 @@ public:
         //int			m_nWidth;
         //int			m_nHeight;
         //int			m_nDispBits;
-        int         m_nCanvasStretch;   // 0=Auto, 100=None, 125 = 1.25X, 133, 150, 167, 200, 300, 400 (4X). 
+        int         m_nCanvasStretch;   // 0=Auto, 100=None, 125 = 1.25X, 133, 150, 167, 200, 300, 400 (4X).
         int			m_nTexSizeX;			// -1 = exact match to screen; -2 = nearest power of 2.
         int			m_nTexSizeY;
         float       m_fAspectX;
@@ -355,16 +330,6 @@ public:
         int         m_nMaxImages;
         int         m_nMaxBytes;
 
-        /*
-        char		m_szFontFace[NUM_FONTS][128];
-        int			m_nFontSize[NUM_FONTS];
-        bool		m_bFontBold[NUM_FONTS];
-        bool		m_bFontItalic[NUM_FONTS];
-        char		 m_szTitleFontFace[128];
-        int			 m_nTitleFontSize;			// percentage of screen width (0..100)
-        bool		 m_bTitleFontBold;
-        bool		 m_bTitleFontItalic;
-        */
         HFONT       m_gdi_title_font_doublesize;
         LPD3DXFONT  m_d3dx_title_font_doublesize;
 
@@ -381,19 +346,19 @@ public:
         ShaderPairInfo          m_BlurShaders[2];
         bool                    m_bWarpShaderLock;
         bool                    m_bCompShaderLock;
-        //bool LoadShaderFromFile( char* szFile, char* szFn, char* szProfile, 
+        //bool LoadShaderFromFile( char* szFile, char* szFn, char* szProfile,
         //                         LPD3DXCONSTANTTABLE* ppConstTable, void** ppShader );
         #define SHADER_WARP  0
         #define SHADER_COMP  1
         #define SHADER_BLUR  2
         #define SHADER_OTHER 3
-        bool LoadShaderFromMemory( const char* szShaderText, char* szFn, char* szProfile, 
+        bool LoadShaderFromMemory( const char* szShaderText, char* szFn, char* szProfile,
                                    LPD3DXCONSTANTTABLE* ppConstTable, void** ppShader, int shaderType, bool bHardErrors );
         bool RecompileVShader(const char* szShadersText, VShaderInfo *si, int shaderType, bool bHardErrors);
         bool RecompilePShader(const char* szShadersText, PShaderInfo *si, int shaderType, bool bHardErrors, int PSVersion);
         bool EvictSomeTexture();
-        typedef Vector<TexInfo> TexInfoList;
-        TexInfoList     m_textures;    
+        typedef std::vector<TexInfo> TexInfoList;
+        TexInfoList     m_textures;
         bool m_bNeedRescanTexturesDir;
         // vertex declarations:
         IDirect3DVertexDeclaration9* m_pSpriteVertDecl;
@@ -421,21 +386,14 @@ public:
         float       m_fLoadingPresetBlendTime;
         int         m_nPresetsLoadedTotal; //important for texture eviction age-tracking...
         CState		m_state_DO_NOT_USE[3];	// do not use; use pState and pOldState instead.
-        ui_mode		m_UI_mode;				// can be UI_REGULAR, UI_LOAD, UI_SAVEHOW, or UI_SAVEAS 
+        ui_mode		m_UI_mode;				// can be UI_REGULAR, UI_LOAD, UI_SAVEHOW, or UI_SAVEAS
 
         #define MASH_SLOTS 5
         #define MASH_APPLY_DELAY_FRAMES 1
         int         m_nMashSlot;    //0..MASH_SLOTS-1
-        //char        m_szMashDir[MASH_SLOTS][MAX_PATH];
         int         m_nMashPreset[MASH_SLOTS];
         int         m_nLastMashChangeFrame[MASH_SLOTS];
 
-        //td_playlist_entry *m_szPlaylist;	// array of 128-char strings
-        //int		m_nPlaylistCurPos;
-        //int		m_nPlaylistLength;
-        //int		m_nTrackPlaying;
-        //int		m_nSongPosMS;
-        //int		m_nSongLenMS;
         bool		m_bUserPagedUp;
         bool		m_bUserPagedDown;
         float		m_fMotionVectorsTempDx;
@@ -456,7 +414,7 @@ public:
         int			m_nPresets;			// the # of entries in the file listing.  Includes directories and then files, sorted alphabetically.
         int			m_nDirs;			// the # of presets that are actually directories.  Always between 0 and m_nPresets.
         int			m_nPresetListCurPos;// Index of the currently-HIGHLIGHTED preset (the user must press Enter on it to select it).
-        int			m_nCurrentPreset;	// Index of the currently-RUNNING preset.  
+        int			m_nCurrentPreset;	// Index of the currently-RUNNING preset.
 								        //   Note that this is NOT the same as the currently-highlighted preset! (that's m_nPresetListCurPos)
 								        //   Be careful - this can be -1 if the user changed dir. & a new preset hasn't been loaded yet.
         wchar_t		m_szCurrentPresetFile[512];	// w/o path.  this is always valid (unless no presets were found)
@@ -470,7 +428,7 @@ public:
 
         // PRESET HISTORY
         #define PRESET_HIST_LEN (64+2)     // make this 2 more than the # you REALLY want to be able to go back.
-        GString     m_presetHistory[PRESET_HIST_LEN];   //circular
+        std::wstring     m_presetHistory[PRESET_HIST_LEN];   //circular
         int         m_presetHistoryPos;
         int         m_presetHistoryBackFence;
         int         m_presetHistoryFwdFence;
@@ -480,10 +438,8 @@ public:
 
         FFT            myfft;
         td_mysounddata mysound;
-        
+
         // stuff for displaying text to user:
-        //int			m_nTextHeightPixels;	// this is for the menu/detail font; NOT the "fancy font"
-        //int			m_nTextHeightPixels_Fancy;
         bool		m_bShowFPS;
         bool		m_bShowRating;
         bool		m_bShowPresetInfo;
@@ -492,10 +448,7 @@ public:
         bool		m_bShowSongTime;
         bool		m_bShowSongLen;
         float		m_fShowRatingUntilThisTime;
-        //float		m_fShowUserMessageUntilThisTime;
-        //char		m_szUserMessage[512];
-         //bool        m_bUserMessageIsError;
-        
+
         #define ERR_ALL    0
         #define ERR_INIT   1  //specifically, loading a preset
         #define ERR_PRESET 2  //specifically, loading a preset
@@ -506,14 +459,16 @@ public:
         ErrorMsgList m_errors;
         void        AddError(wchar_t* szMsg, float fDuration, int category=ERR_ALL, bool bBold=true);
         void        ClearErrors(int category=ERR_ALL);  // 0=all categories
-        
+
+
+        void GetSongTitle(wchar_t *szSongTitle, int nSize);
+
+        //musik::core::sdk::IPlaybackService* playbackService;
+        std::string emulatedWinampSongTitle;
         char		m_szDebugMessage[512];
         wchar_t		m_szSongTitle    [512];
         wchar_t		m_szSongTitlePrev[512];
-        //HFONT		m_hfont[3];	// 0=fancy font (for song titles, preset name)
-						        // 1=legible font (the main font)
-						        // 2=tooltip font (for tooltips in the menu system)
-        //HFONT       m_htitlefont[NUM_TITLE_FONTS]; // ~25 different sizes
+
         // stuff for menu system:
         CMilkMenu	*m_pCurMenu;	// should always be valid!
         CMilkMenu	 m_menuPreset;
@@ -526,8 +481,6 @@ public:
         CMilkMenu    m_menuWavecode[MAX_CUSTOM_WAVES];
         CMilkMenu    m_menuShapecode[MAX_CUSTOM_SHAPES];
         bool         m_bShowShaderHelp;
-
-
 
         wchar_t		m_szMilkdrop2Path[MAX_PATH];		// ends in a backslash
         wchar_t		m_szMsgIniFile[MAX_PATH];
@@ -546,6 +499,7 @@ public:
         int m_nHighestBlurTexUsedThisFrame;
         IDirect3DTexture9 *m_lpDDSTitle;    // CAREFUL: MIGHT BE NULL (if not enough mem)!
         int               m_nTitleTexSizeX, m_nTitleTexSizeY;
+        UINT              m_adapterId;
         MYVERTEX          *m_verts;
         MYVERTEX          *m_verts_temp;
         td_vertinfo       *m_vertinfo;
@@ -553,8 +507,8 @@ public:
         int               *m_indices_list;
 
         // for final composite grid:
-        #define FCGSX 32 // final composite gridsize - # verts - should be EVEN.  
-        #define FCGSY 24 // final composite gridsize - # verts - should be EVEN.  
+        #define FCGSX 32 // final composite gridsize - # verts - should be EVEN.
+        #define FCGSY 24 // final composite gridsize - # verts - should be EVEN.
                          // # of grid *cells* is two less,
                          // since we have redundant verts along the center line in X and Y (...for clean 'ang' interp)
         MYVERTEX    m_comp_verts[FCGSX*FCGSY];
@@ -590,14 +544,11 @@ public:
         char        m_szBlurVS[32768];
         char        m_szBlurPSX[32768];
         char        m_szBlurPSY[32768];
-        //const char* GetDefaultWarpShadersText() { return m_szDefaultWarpShaderText; }
-        //const char* GetDefaultCompShadersText() { return m_szDefaultCompShaderText; }
         void        GenWarpPShaderText(char *szShaderText, float decay, bool bWrap);
         void        GenCompPShaderText(char *szShaderText, float brightness, float ve_alpha, float ve_zoom, int ve_orient, float hue_shader, bool bBrighten, bool bDarken, bool bSolarize, bool bInvert);
 
    //====[ 2. methods added: ]=====================================================================================
-        
-        void RefreshTab2(HWND hwnd);
+
         void RenderFrame(int bRedraw);
         void AlignWave(int nSamples);
 
@@ -614,11 +565,10 @@ public:
 	    void		LoadPreset(const wchar_t *szPresetFilename, float fBlendTime);
         void        LoadPresetTick();
         void        FindValidPresetDir();
-	    //char*		GetConfigIniFile() { return m_szConfigIniFile; };
 	    wchar_t*	GetMsgIniFile()    { return m_szMsgIniFile; };
 	    wchar_t*    GetPresetDir()     { return m_szPresetDir; };
 	    void		SavePresetAs(wchar_t *szNewFile);		// overwrites the file if it was already there.
-	    void		DeletePresetFile(wchar_t *szDelFile);	
+	    void		DeletePresetFile(wchar_t *szDelFile);
 	    void		RenamePresetFile(wchar_t *szOldFile, wchar_t *szNewFile);
 	    void		SetCurrentPresetRating(float fNewRating);
 	    void		SeekToPreset(wchar_t cStartChar);
@@ -626,12 +576,7 @@ public:
 	    int 		HandleRegularKey(WPARAM wParam);
 	    bool		OnResizeGraphicsWindow();
 	    bool		OnResizeTextWindow();
-	    //bool		InitFont();
-	    //void		ToggleControlWindow();	// for Desktop Mode only
-	    //void		DrawUI();
 	    void		ClearGraphicsWindow();	// for windowed mode only
-        //bool    Update_Overlay();
-	    //void		UpdatePlaylist();
 	    void		LaunchCustomMessage(int nMsgNum);
 	    void		ReadCustomMessages();
 	    void		LaunchSongTitleAnim();
@@ -661,7 +606,7 @@ public:
 	    void		KillSprite(int iSlot);
         void        DoCustomSoundAnalysis();
         void        DrawMotionVectors();
-        
+
         bool        LoadShaders(PShaderSet* sh, CState* pState, bool bTick);
         void        UvToMathSpace(float u, float v, float* rad, float* ang);
         void        ApplyShaderParams(CShaderParams* p, LPD3DXCONSTANTTABLE pCT, CState* pState);
@@ -683,47 +628,7 @@ public:
         virtual void MyRenderFn(int redraw);
         virtual void MyRenderUI(int *upper_left_corner_y, int *upper_right_corner_y, int *lower_left_corner_y, int *lower_right_corner_y, int xL, int xR);
         virtual LRESULT MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lParam);
-        virtual BOOL    MyConfigTabProc(int nPage, HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam);
         virtual void OnAltK();
-
-        //====[ 4. methods from base class: ]===========================================================================
-    /*
-        // 'GET' METHODS
-        // ------------------------------------------------------------
-        int     GetFrame();            // returns current frame # (starts at zero)
-        float   GetTime();             // returns current animation time (in seconds) (starts at zero) (updated once per frame)
-        float   GetFps();              // returns current estimate of framerate (frames per second)
-        eScrMode GetScreenMode();      // returns WINDOWED, FULLSCREEN, FAKE_FULLSCREEN, or NOT_YET_KNOWN (if called before or during OverrideDefaults()).
-        HWND    GetWinampWindow();     // returns handle to Winamp main window
-        HINSTANCE GetInstance();       // returns handle to the plugin DLL module; used for things like loading resources (dialogs, bitmaps, icons...) that are built into the plugin.
-        char*   GetPluginsDirPath();   // usually returns 'c:\\program files\\winamp\\plugins\\'
-        char*   GetConfigIniFile();    // usually returns 'c:\\program files\\winamp\\plugins\\something.ini' - filename is determined from identifiers in 'defines.h'
-
-        // GET METHODS THAT ONLY WORK ONCE DIRECTX IS READY
-        // ------------------------------------------------------------
-        //  The following 'Get' methods are only available after DirectX has been initialized.
-        //  If you call these from OverrideDefaults, MyPreInitialize, or MyReadConfig, 
-        //    they will fail and return NULL (zero).
-        // ------------------------------------------------------------
-        HWND         GetPluginWindow();    // returns handle to the plugin window.  NOT persistent; can change.  
-        int          GetWidth();           // returns width of plugin window interior, in pixels.
-        int          GetHeight();          // returns height of plugin window interior, in pixels.
-        D3DFORMAT    GetBackBufFormat();   // returns the pixelformat of the back buffer (probably D3DFMT_R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_X8R8G8B8, D3DFMT_R5G6B5, D3DFMT_X1R5G5B5, D3DFMT_A1R5G5B5, D3DFMT_A4R4G4B4, D3DFMT_R3G3B2, D3DFMT_A8R3G3B2, D3DFMT_X4R4G4B4, or D3DFMT_UNKNOWN)
-        D3DFORMAT    GetBackBufZFormat();  // returns the pixelformat of the back buffer's Z buffer (probably D3DFMT_D16_LOCKABLE, D3DFMT_D32, D3DFMT_D15S1, D3DFMT_D24S8, D3DFMT_D16, D3DFMT_D24X8, D3DFMT_D24X4S4, or D3DFMT_UNKNOWN)
-        D3DCAPS8*    GetCaps();            // returns a pointer to the D3DCAPS8 structer for the device.  NOT persistent; can change.
-        LPDIRECT3DDEVICE8 GetDevice();     // returns a pointer to the DirectX 8 Device.  NOT persistent; can change.
-
-        // FONTS & TEXT
-        // ------------------------------------------------------------
-        LPD3DXFONT   GetFont(eFontIndex idx);        // returns a handle to a D3DX font you can use to draw text on the screen
-        int          GetFontHeight(eFontIndex idx);  // returns the height of the font, in pixels
-
-        // MISC
-        // ------------------------------------------------------------
-        td_soundinfo m_sound;                   // a structure always containing the most recent sound analysis information; defined in pluginshell.h.
-        void         SuggestHowToFreeSomeMem(); // gives the user a 'smart' messagebox that suggests how they can free up some video memory.
-    */
-    //=====================================================================================================================
 };
 
 #endif
