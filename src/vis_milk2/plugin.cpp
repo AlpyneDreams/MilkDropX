@@ -5395,6 +5395,15 @@ LRESULT CPlugin::MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lP
             return 0; // we processed (or absorbed) the key
 		//case VK_F4:		m_bShowFPS = !m_bShowFPS;				return 0; // we processed (or absorbed) the key
 		//case VK_F6:		m_bShowRating = !m_bShowRating;			return 0; // we processed (or absorbed) the key
+        case VK_F3:
+        {
+            if (m_max_fps_w <= 0) m_max_fps_w = 15;
+            else if (m_max_fps_w < 30) m_max_fps_w = 30;
+            else if (m_max_fps_w < 60) m_max_fps_w = 60;
+            else if (m_max_fps_w < 120) m_max_fps_w = 120;
+            else if (m_max_fps_w >= 120) m_max_fps_w = 0;
+            break;
+        }
 		//case VK_F7:
 		//	if (m_nNumericInputMode == NUMERIC_INPUT_MODE_CUST_MSG)
 		//		ReadCustomMessages();		// re-read custom messages

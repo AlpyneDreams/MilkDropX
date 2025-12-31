@@ -829,7 +829,7 @@ int CPluginShell::PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance
 	m_fake_fullscreen_mode  = 0;
 	m_max_fps_fs            = 30;
 	m_max_fps_dm            = 30;
-	m_max_fps_w             = 0;
+	m_max_fps_w             = 30;
 	m_show_press_f1_msg     = 1;
 	m_allow_page_tearing_w  = 1;
 	m_allow_page_tearing_fs = 0;
