@@ -4836,7 +4836,7 @@ void CPlugin::MyRenderUI(
                         int idx = m_nMashPreset[mash];
 
                         wchar_t buf[1024];
-                        swprintf(buf, L"%s%s", wasabiApiLangString(mashNames[mash]), m_presets[idx].szFilename);
+                        swprintf(buf, L"%Ls%Ls", wasabiApiLangString(mashNames[mash]), m_presets[idx].szFilename.c_str());
                         RECT r2 = orig_rect;
                         r2.top += h;
                         h += m_text.DrawTextW(GetFont(SIMPLE_FONT), buf, -1, &r2, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | (pass==0 ? DT_CALCRECT : 0), (mash==m_nMashSlot) ? PLAYLIST_COLOR_HILITE_TRACK : PLAYLIST_COLOR_NORMAL, false);
@@ -8757,7 +8757,7 @@ void CPlugin::GenWarpPShaderText(char *szShaderText, float decay, bool bWrap)
     p += sprintf(p, "%c", 1);
 
     p += sprintf(p, "    // sample previous frame%c", LF);
-    p += sprintf(p, "    ret = tex2D( sampler%s_main, uv ).xyz;%c", bWrap ? L"" : L"_fc", LF);
+    p += sprintf(p, "    ret = tex2D( sampler%s_main, uv ).xyz;%c", bWrap ? "" : "_fc", LF);
     p += sprintf(p, "    %c", LF);
     p += sprintf(p, "    // darken (decay) over time%c", LF);
     p += sprintf(p, "    ret *= %.2f; //or try: ret -= 0.004;%c", decay, LF);
