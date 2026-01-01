@@ -5387,14 +5387,12 @@ LRESULT CPlugin::MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lP
 
 		switch(wParam)
 		{
-		case VK_F9:
-            m_bShowSongTitle = !m_bShowSongTitle; // we processed (or absorbed) the key
-			m_bShowSongTime = !m_bShowSongTime;
-			m_bShowSongLen  = !m_bShowSongLen;
-		    m_bShowPresetInfo = !m_bShowPresetInfo;
-            return 0; // we processed (or absorbed) the key
-		//case VK_F4:		m_bShowFPS = !m_bShowFPS;				return 0; // we processed (or absorbed) the key
-		//case VK_F6:		m_bShowRating = !m_bShowRating;			return 0; // we processed (or absorbed) the key
+		//case VK_F9:
+        //    m_bShowSongTitle = !m_bShowSongTitle; // we processed (or absorbed) the key
+		//	m_bShowSongTime = !m_bShowSongTime;
+		//	m_bShowSongLen  = !m_bShowSongLen;
+		//    m_bShowPresetInfo = !m_bShowPresetInfo;
+        //    return 0; // we processed (or absorbed) the key
         case VK_F3:
         {
             if (m_max_fps_w <= 0) m_max_fps_w = 15;
@@ -5418,6 +5416,9 @@ LRESULT CPlugin::MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lP
             wcsncpy_s(m_szSongTitle, sz, sizeof(m_szSongTitle) / sizeof(wchar_t));
             break;
         }
+        case VK_F4:		m_bShowPresetInfo = !m_bShowPresetInfo;	return 0; // we processed (or absorbed) the key
+        case VK_F5:		m_bShowFPS = !m_bShowFPS;				return 0; // we processed (or absorbed) the key
+        case VK_F6:		m_bShowRating = !m_bShowRating;			return 0; // we processed (or absorbed) the key
 		//case VK_F7:
 		//	if (m_nNumericInputMode == NUMERIC_INPUT_MODE_CUST_MSG)
 		//		ReadCustomMessages();		// re-read custom messages
