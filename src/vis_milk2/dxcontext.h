@@ -39,6 +39,25 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <d3d9.h>
 #include <d3dx9.h>
 
+#ifdef _DEBUG
+struct PixEvent
+{
+    PixEvent( const wchar_t* name )
+    {
+        D3DPERF_BeginEvent( 0xff5D3FD3, name );
+    }
+
+    ~PixEvent()
+    {
+        D3DPERF_EndEvent();
+    }
+};
+
+#define PIXEVENT( Name ) PixEvent __pixevent( L##Name )
+#else
+#define PIXEVENT( Name )
+#endif
+
 #define SNAP_WINDOWED_MODE_BLOCKSIZE  32    // or use 0 if you don't want snapping
 
 typedef struct

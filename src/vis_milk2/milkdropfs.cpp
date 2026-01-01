@@ -239,6 +239,8 @@ bool CPlugin::RenderStringToTitleTexture()	// m_szSongMessage
     if (!lpDevice)
         return false;
 
+	PIXEVENT("RenderStringToTitleTexture");
+
 	wchar_t szTextToDraw[512];
 	swprintf(szTextToDraw, L" %s ", m_supertext.szTextW);  //add a space @ end for italicized fonts; and at start, too, because it's centered!
 
@@ -750,6 +752,8 @@ void CPlugin::RunPerFrameEquations(int code)
 
 void CPlugin::RenderFrame(int bRedraw)
 {
+	PIXEVENT("RenderFrame");
+
 	int i;
 
     float fDeltaT = 1.0f/GetFps();
@@ -1008,6 +1012,8 @@ void CPlugin::RenderFrame(int bRedraw)
 	// do the warping for this frame [warp shader]
     if (!m_pState->m_bBlending)
     {
+		PIXEVENT("Warp");
+
         // no blend
         if (bNewPresetUsesWarpShader)
 	        WarpedBlit_Shaders(1, false, false, false, false);
@@ -1016,6 +1022,8 @@ void CPlugin::RenderFrame(int bRedraw)
     }
     else
     {
+		PIXEVENT("Warp");
+
         // blending
         // WarpedBlit( nPass,  bAlphaBlend, bFlipAlpha, bCullTiles, bFlipCulling )
         // note: alpha values go from 0..1 during a blend.
@@ -1076,6 +1084,8 @@ void CPlugin::RenderFrame(int bRedraw)
     // show it to the user [composite shader]
     if (!m_pState->m_bBlending)
     {
+		PIXEVENT("Comp");
+
         // no blend
         if (bNewPresetUsesCompShader)
 	        ShowToUser_Shaders(1, false, false, false, false);
@@ -1084,6 +1094,8 @@ void CPlugin::RenderFrame(int bRedraw)
     }
     else
     {
+		PIXEVENT("Comp");
+
         // blending
         // ShowToUser( nPass,  bAlphaBlend, bFlipAlpha, bCullTiles, bFlipCulling )
         // note: alpha values go from 0..1 during a blend.
@@ -1155,6 +1167,8 @@ void CPlugin::RenderFrame(int bRedraw)
 
 void CPlugin::DrawMotionVectors()
 {
+	PIXEVENT("DrawMotionVectors");
+
 	// FLEXIBLE MOTION VECTOR FIELD
 	if ((float)*m_pState->var_pf_mv_a >= 0.001f)
 	{
@@ -1500,6 +1514,8 @@ void CPlugin::GetSafeBlurMinMax(CState* pState, float* blur_min, float* blur_max
 
 void CPlugin::BlurPasses()
 {
+	PIXEVENT("BlurPasses");
+
     #if (NUM_BLUR_TEX>0)
 
         // Note: Blur is currently a little funky.  It blurs the *current* frame after warp;
@@ -2214,6 +2230,8 @@ void CPlugin::WarpedBlit_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
 
 void CPlugin::DrawCustomShapes()
 {
+	PIXEVENT("DrawCustomShapes");
+
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
     if (!lpDevice)
         return;
@@ -2495,6 +2513,8 @@ int SmoothWave(WFVERTEX* vi, int nVertsIn, WFVERTEX* vo)
 
 void CPlugin::DrawCustomWaves()
 {
+	PIXEVENT("DrawCustomWaves");
+
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
     if (!lpDevice)
         return;
@@ -2681,6 +2701,8 @@ void CPlugin::DrawCustomWaves()
 
 void CPlugin::DrawWave(float *fL, float *fR)
 {
+	PIXEVENT("DrawWave");
+
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
     if (!lpDevice)
         return;
@@ -3299,6 +3321,8 @@ SKIP_DRAW_WAVE:
 
 void CPlugin::DrawSprites()
 {
+	PIXEVENT("DrawSprites");
+
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
     if (!lpDevice)
         return;
@@ -3431,6 +3455,8 @@ bool CPlugin::SetMilkdropRenderTarget(LPDIRECTDRAWSURFACE7 lpSurf, int w, int h,
 
 void CPlugin::DrawUserSprites()	// from system memory, to back buffer.
 {
+	PIXEVENT("DrawUserSprites");
+
     LPDIRECT3DDEVICE9 lpDevice = GetDevice();
     if (!lpDevice)
         return;
@@ -4476,6 +4502,8 @@ void CPlugin::ShowToUser_Shaders(int nPass, bool bAlphaBlend, bool bFlipAlpha, b
 
 void CPlugin::ShowSongTitleAnim(int w, int h, float fProgress)
 {
+	PIXEVENT("ShowSongTitleAnim");
+
 	int i,x,y;
 
     if (!m_lpDDSTitle)  // this *can* be NULL, if not much video mem!
