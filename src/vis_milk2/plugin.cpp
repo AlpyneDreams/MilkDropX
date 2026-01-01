@@ -6561,7 +6561,8 @@ int CPlugin::HandleRegularKey(WPARAM wParam)
 	case '-':
 		SetCurrentPresetRating(m_pState->m_fRating - 1.0f);
 		return 0; // we processed (or absorbed) the key
-	case '+':
+    case '+':
+    case '=':
 		SetCurrentPresetRating(m_pState->m_fRating + 1.0f);
 		return 0; // we processed (or absorbed) the key
 
