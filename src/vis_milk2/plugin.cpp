@@ -5402,6 +5402,20 @@ LRESULT CPlugin::MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lP
             else if (m_max_fps_w < 60) m_max_fps_w = 60;
             else if (m_max_fps_w < 120) m_max_fps_w = 120;
             else if (m_max_fps_w >= 120) m_max_fps_w = 0;
+
+            // Copy song title to temporary buffer
+            wchar_t sz[sizeof(m_szSongTitle) / sizeof(wchar_t)];
+            wcsncpy_s(sz, m_szSongTitle, sizeof(m_szSongTitle) / sizeof(wchar_t));
+
+            // Show fps count as song title
+            if ( m_max_fps_w <= 0 )
+                wnsprintfW(m_szSongTitle, sizeof(m_szSongTitle) / sizeof(wchar_t), L"%Ls", L"unlimited fps!");
+            else
+                wnsprintfW(m_szSongTitle, sizeof(m_szSongTitle) / sizeof(wchar_t), L"%d fps", m_max_fps_w);
+            LaunchSongTitleAnim();
+
+            // Restore song title
+            wcsncpy_s(m_szSongTitle, sz, sizeof(m_szSongTitle) / sizeof(wchar_t));
             break;
         }
 		//case VK_F7:
