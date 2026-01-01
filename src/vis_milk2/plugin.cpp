@@ -5446,9 +5446,9 @@ LRESULT CPlugin::MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lP
 		//	}
 		//	return 0; // we processed (or absorbed) the key
 
-  //      case VK_F9:
-  //          m_bShowShaderHelp = !m_bShowShaderHelp;
-  //          return FALSE;
+        case VK_F9:
+            m_bShowShaderHelp = !m_bShowShaderHelp;
+            return FALSE;
 
         case VK_SCROLL:
             m_bPresetLockedByUser = GetKeyState(VK_SCROLL) & 1;
