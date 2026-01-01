@@ -2879,7 +2879,7 @@ bool PickRandomTexture(const wchar_t* prefix, wchar_t* szRetTextureFilename)  //
                 continue;
 
             for (int i=0; i<sizeof(texture_exts)/sizeof(texture_exts[0]); i++)
-                if (!wcsicmp(texture_exts[i].c_str(), ext+1))
+                if (!_wcsicmp(texture_exts[i].c_str(), ext+1))
                 {
                     // valid texture found - add it to the list.  ("heart.jpg", for example)
                     texfiles.push_back( ffd.cFileName );
@@ -7489,7 +7489,7 @@ retry:
 		{
 			// skip normal files not ending in ".milk"
 			int len = lstrlenW(fd.cFileName);
-			if (len < 5 || wcsicmp(fd.cFileName + len - 5, L".milk") != 0)
+			if (len < 5 || _wcsicmp(fd.cFileName + len - 5, L".milk") != 0)
 				bSkip = true;
 
             // if it is .milk, make sure we know how to run its pixel shaders -
