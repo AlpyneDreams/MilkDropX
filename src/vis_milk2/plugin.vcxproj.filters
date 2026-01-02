@@ -165,6 +165,9 @@
     <ClInclude Include="..\audio\prefs.h">
       <Filter>BeatDrop</Filter>
     </ClInclude>
+    <ClInclude Include="imilkdrop.h">
+      <Filter>MilkDrop</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="plugin.rc">

@@ -30,6 +30,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __NULLSOFT_DX9_PLUGIN_SHELL_H__
 #define __NULLSOFT_DX9_PLUGIN_SHELL_H__ 1
 
+#include "imilkdrop.h"
 #include "shell_defines.h"
 #include "dxcontext.h"
 #include "fft.h"
@@ -60,7 +61,7 @@ typedef struct
     float fSpectrum[2][NUM_FREQUENCIES];    // NUM_FREQUENCIES samples for each channel (note: NUM_FREQUENCIES is declared in shell_defines.h)
 } td_soundinfo;                             // ...range is 0 Hz to 22050 Hz, evenly spaced.
 
-class CPluginShell
+class CPluginShell : public IMilkDrop
 {
 public:
     // GET METHODS
