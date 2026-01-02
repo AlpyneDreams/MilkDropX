@@ -334,6 +334,9 @@ void MissingDirectX(HWND hwnd)
 
 bool CheckForMMX()
 {
+#ifdef _M_X64
+    return true; // All x64 processors support MMX
+#else
     DWORD bMMX = 0;
     DWORD *pbMMX = &bMMX;
     __try {
@@ -353,11 +356,12 @@ bool CheckForMMX()
 		return true;
 
 	return false;
+#endif
 }
 
 bool CheckForSSE()
 {
-#ifdef _WIN64
+#ifdef _M_X64
 	return true; // All x64 processors support SSE
 #else
     /*
