@@ -91,7 +91,7 @@ BEGIN
             VALUE "FileVersion", "2, 41, 0, 0"
             VALUE "InternalName", "vis_milk2.dll"
             VALUE "OriginalFilename", "vis_milk2.dll"
-            VALUE "ProductName", "MilkDrop 2"
+            VALUE "ProductName", "MilkDropX"
             VALUE "ProductVersion", "2, 41, 0, 0"
         END
     END
