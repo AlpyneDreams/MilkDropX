@@ -1,0 +1,14 @@
+- Try https://github.com/OfficialIncubo/BeatDrop-Music-Visualizer - it's really definitive even if it has some annoyances, it seems like the definitive version
+	- We'll see though...
+	- Might be better to just have authentic sauce
+- Port this straight into vitamin as a DLL
+- Scour all of these for presets
+
+Evaluation of versions
+	MilkDrop2			My goat. Would be a pain to decouple from winamp
+	Incubo's BeatDrop		Seems bloated but might be the best one. Active development so could contribute stuff too.
+	BeatDrop			Quite a mess but has been easy to fix up decently so far
+	BeatDrop2077			French garbage. Not updated. Worth looking at changes though
+	MilkDrop3			French garbage. Not open source. Overengineered dogshit
+	WACUP MilkDrop2			Coupled with winamp and also highly specialized for their shit
+

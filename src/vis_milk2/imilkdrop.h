@@ -26,7 +26,7 @@ struct IMilkDrop
     virtual unsigned int GetAdapterID() const = 0;
 };
 
-__declspec(dllexport) IMilkDrop* GetMilkDrop();
+extern "C" __declspec(dllexport) IMilkDrop* GetMilkDrop();
 
 // System audio sink for MilkDrop
 struct IMilkSystemAudio
@@ -36,7 +36,7 @@ struct IMilkSystemAudio
     virtual void DrainAudioBuf(unsigned char* pWaveL, unsigned char* pWaveR, int SamplesCount) = 0;
 };
 
-__declspec(dllexport) IMilkSystemAudio* GetMilkDropSystemAudioSink();
+extern "C" __declspec(dllexport) IMilkSystemAudio* GetMilkDropSystemAudioSink();
 
 
 // Linux port todo:

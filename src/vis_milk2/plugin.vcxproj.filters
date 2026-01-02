@@ -114,9 +114,6 @@
     <ClCompile Include="wasabi.cpp">
       <Filter>MilkDrop\Framework</Filter>
     </ClCompile>
-    <ClCompile Include="main_dll.cpp">
-      <Filter>MilkDrop</Filter>
-    </ClCompile>
     <ClCompile Include="..\audio\audiobuf.cpp">
       <Filter>BeatDrop</Filter>
     </ClCompile>
@@ -132,6 +129,7 @@
     <ClCompile Include="..\audio\prefs.cpp">
       <Filter>BeatDrop</Filter>
     </ClCompile>
+    <ClCompile Include="main_dll.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defines.h">
