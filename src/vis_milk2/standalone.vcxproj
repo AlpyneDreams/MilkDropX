@@ -78,7 +78,7 @@
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)build\$(PlatformShortName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\MilkDrop\$(PlatformShortName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)build\MilkDrop_exe\$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>MilkDrop</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +87,7 @@
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)build\$(PlatformShortName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\MilkDrop\$(PlatformShortName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)build\MilkDrop_exe\$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>MilkDrop</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -95,7 +95,7 @@
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)build\$(PlatformShortName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\MilkDrop\$(PlatformShortName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)build\MilkDrop_exe\$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>MilkDrop</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,7 +103,7 @@
     <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)build\$(PlatformShortName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\MilkDrop\$(PlatformShortName)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)build\MilkDrop_exe\$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>MilkDrop</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
