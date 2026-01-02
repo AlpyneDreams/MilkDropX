@@ -86,7 +86,9 @@ static void MungeFPCW( WORD *pwOldCW )
     if (pwOldCW) *pwOldCW = wSave;
   //  return ret;
 #else
+#ifdef _M_IX86 // _MCW_PC is not supported on ARM or x64
 	_controlfp(_PC_24, _MCW_PC); // single precision
+#endif
 	_controlfp(_RC_NEAR, _MCW_RC); // round to nearest mode
 	_controlfp(_EM_ZERODIVIDE, _EM_ZERODIVIDE);  // disable divide-by-zero
 #endif
@@ -94,7 +96,14 @@ static void MungeFPCW( WORD *pwOldCW )
 
 void RestoreFPCW(WORD wSave)
 {
-    __asm fldcw wSave
+#ifdef _M_IX86
+	__asm fldcw wSave
+#else
+	// Can only set these bits on ARM and x64
+	unsigned mask = _MCW_RC | _MCW_EM | _MCW_DN;
+	unsigned current;
+	_controlfp_s(&current, mask, wSave);
+#endif
 }
 
 int GetNumToSpawn(float fTime, float fDeltaT, float fRate, float fRegularity, int iNumSpawnedSoFar)
