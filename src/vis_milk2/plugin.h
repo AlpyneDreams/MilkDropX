@@ -630,6 +630,7 @@ public:
         virtual void MyRenderUI(int *upper_left_corner_y, int *upper_right_corner_y, int *lower_left_corner_y, int *lower_right_corner_y, int xL, int xR);
         virtual LRESULT MyWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lParam);
         virtual void OnAltK();
+        virtual unsigned int GetAdapterID() const { return m_adapterId; }
 };
 
 #endif

@@ -8,9 +8,6 @@
       <UniqueIdentifier>{a80939e4-d079-498f-bb43-482a4708d7d5}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
     </Filter>
-    <Filter Include="MilkDrop\Framework">
-      <UniqueIdentifier>{77c9f717-9f8c-480c-84a4-7f131c8c9af8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MilkDrop\Plugin">
       <UniqueIdentifier>{b5a222b7-05ae-422e-a109-9d49c736ee9b}</UniqueIdentifier>
     </Filter>
@@ -26,11 +23,11 @@
     <Filter Include="NS-EEL2">
       <UniqueIdentifier>{4229119c-070f-4f2a-8b69-177495b6b76e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MilkDrop\Framework">
+      <UniqueIdentifier>{3f8b24bf-9329-4170-b1ac-40cd8fd2c011}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
     <ClCompile Include="..\audio\guid.cpp">
       <Filter>BeatDrop</Filter>
     </ClCompile>
@@ -45,21 +42,6 @@
     </ClCompile>
     <ClCompile Include="..\audio\audiobuf.cpp">
       <Filter>BeatDrop</Filter>
-    </ClCompile>
-    <ClCompile Include="dxcontext.cpp">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="fft.cpp">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="pluginshell.cpp">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="utility.cpp">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="wasabi.cpp">
-      <Filter>MilkDrop\Framework</Filter>
     </ClCompile>
     <ClCompile Include="menu.cpp">
       <Filter>MilkDrop\Plugin</Filter>
@@ -133,35 +115,26 @@
     <ClCompile Include="..\ns-eel2\nseel-yylex.c">
       <Filter>NS-EEL2</Filter>
     </ClCompile>
+    <ClCompile Include="main_dll.cpp">
+      <Filter>BeatDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="dxcontext.cpp">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="fft.cpp">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="pluginshell.cpp">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="utility.cpp">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="wasabi.cpp">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AutoCharFn.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="dxcontext.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="fft.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="pluginshell.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="shell_defines.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="utility.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="wasabi.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="AutoWide.h">
-      <Filter>MilkDrop\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="defines.h">
       <Filter>MilkDrop\Plugin</Filter>
     </ClInclude>
@@ -203,9 +176,6 @@
     </ClInclude>
     <ClInclude Include="..\audio\prefs.h">
       <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="imilkdrop.h">
-      <Filter>MilkDrop</Filter>
     </ClInclude>
     <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\CompilerFunctions.h">
       <Filter>ProjectM-Eval</Filter>
@@ -249,11 +219,34 @@
     <ClInclude Include="..\ns-eel2\ns-eel-int.h">
       <Filter>NS-EEL2</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="plugin.rc">
+    <ClInclude Include="imilkdrop.h" />
+    <ClInclude Include="AutoCharFn.h">
       <Filter>MilkDrop\Framework</Filter>
-    </ResourceCompile>
+    </ClInclude>
+    <ClInclude Include="AutoWide.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="dxcontext.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="fft.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="pluginshell.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="shell_defines.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="utility.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="wasabi.h">
+      <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="plugin_icon.ico">
@@ -270,5 +263,10 @@
     <None Include="..\..\extern\projectm-eval\projectm-eval\Compiler.y">
       <Filter>ProjectM-Eval</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="plugin.rc">
+      <Filter>MilkDrop\Plugin</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

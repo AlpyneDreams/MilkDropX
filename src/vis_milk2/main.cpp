@@ -2,6 +2,8 @@
 #define _CRTDBG_MAP_ALLOC
 #endif
 
+#pragma comment(lib,"winmm.lib")    // for various things
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <crtdbg.h>
@@ -12,7 +14,7 @@
 #include <math.h>
 #include <dwmapi.h>
 
-#include "plugin.h"
+#include "imilkdrop.h"
 #include "resource.h"
 
 #include <mutex>
@@ -30,7 +32,7 @@
 #define DEFAULT_WIDTH 900;
 #define DEFAULT_HEIGHT 900;
 
-CPlugin g_plugin;
+IMilkDrop* g_plugin = nullptr;
 HINSTANCE api_orig_hinstance = nullptr;
 _locale_t g_use_C_locale;
 char keyMappings[8];
@@ -64,7 +66,7 @@ void InitD3d(HWND hwnd, int width, int height) {
     D3DDISPLAYMODE mode;
     pD3D9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &mode);
 
-    UINT adapterId = g_plugin.m_adapterId;
+    UINT adapterId = g_plugin->GetAdapterID();
 
     if (adapterId > pD3D9->GetAdapterCount()) {
         adapterId = D3DADAPTER_DEFAULT;
@@ -196,7 +198,7 @@ LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                     break;
                 }
             }*/
-            g_plugin.PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
+            g_plugin->PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
         }
         break;
 
@@ -208,13 +210,13 @@ LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
                 ToggleFullScreen(hWnd);
             }
             else {
-                g_plugin.PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
+                g_plugin->PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
             }
             break;
         }
 
         default:
-            return g_plugin.PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
+            return g_plugin->PluginShellWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -229,7 +231,7 @@ void RenderFrame() {
         memset(pcmRightIn, 0, SAMPLE_SIZE);
     }
 
-    g_plugin.PluginRender(
+    g_plugin->PluginRender(
         (unsigned char*) pcmLeftOut,
         (unsigned char*) pcmRightOut);
 }
@@ -300,10 +302,10 @@ unsigned __stdcall CreateWindowAndRun(void* data) {
     int lastWidth = windowWidth;
     int lastHeight = windowHeight;
 
-    g_plugin.PluginPreInitialize(0, 0);
+    g_plugin->PluginPreInitialize(0, 0);
     InitD3d(hwnd, windowWidth, windowHeight);
 
-    g_plugin.PluginInitialize(
+    g_plugin->PluginInitialize(
         pD3DDevice,
         &d3dPp,
         hwnd,
@@ -325,8 +327,8 @@ unsigned __stdcall CreateWindowAndRun(void* data) {
         }
     }
 
-    g_plugin.MyWriteConfig();
-    g_plugin.PluginQuit();
+    g_plugin->MyWriteConfig();
+    g_plugin->PluginQuit();
 
     DeinitD3d();
 
@@ -583,6 +585,7 @@ int StartThreads(HINSTANCE instance) {
     }
 #else
     int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow) {
+        g_plugin = GetMilkDrop();
         api_orig_hinstance = hInstance;
         return StartThreads(hInstance);
     }
@@ -616,7 +619,7 @@ class Visualizer :
             }
 
             virtual void SetPlaybackService(musik::core::sdk::IPlaybackService* playback) override {
-                g_plugin.playbackService = playback;
+                g_plugin->playbackService = playback;
                 ::playback = playback;
             }
 
@@ -624,10 +627,10 @@ class Visualizer :
                 if (track) {
                     char buffer[1024];
                     track->GetString("title", buffer, 1024);
-                    g_plugin.emulatedWinampSongTitle = std::string(buffer);
+                    g_plugin->emulatedWinampSongTitle = std::string(buffer);
                 }
                 else {
-                    g_plugin.emulatedWinampSongTitle = "";
+                    g_plugin->emulatedWinampSongTitle = "";
                 }
             }
 

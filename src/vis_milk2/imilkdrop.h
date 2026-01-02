@@ -19,8 +19,11 @@ struct IMilkDrop
 
     // Save config
     virtual void MyWriteConfig() = 0;
+
+    virtual unsigned int GetAdapterID() const = 0;
 }; 
 
+__declspec(dllexport) IMilkDrop* GetMilkDrop();
 
 // Linux port todo:
 // - x64 port
