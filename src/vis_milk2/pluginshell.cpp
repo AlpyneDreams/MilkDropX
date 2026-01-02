@@ -1245,6 +1245,7 @@ void CPluginShell::WriteConfig()
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 
+// TODO: What is pSpecL and pSpecR?
 int CPluginShell::PluginRender(unsigned char *pWaveL, unsigned char *pWaveR)//, unsigned char *pSpecL, unsigned char *pSpecR)
 {
 	// return FALSE here to tell Winamp to terminate the plugin
@@ -1325,11 +1326,14 @@ int CPluginShell::PluginRender(unsigned char *pWaveL, unsigned char *pWaveR)//, 
 
 	DrawAndDisplay(0);
 
+	return true;
+}
+
+int CPluginShell::PluginEndFrame()
+{
 	EnforceMaxFPS();
 
-	m_frame++;
-
-	return true;
+	return ++m_frame;
 }
 
 void CPluginShell::DrawAndDisplay(int redraw)
@@ -1423,7 +1427,10 @@ void CPluginShell::DrawAndDisplay(int redraw)
 
 		m_vjd3d9_device->EndScene();
 	}
+}
 
+void CPluginShell::Present()
+{
 	if (m_lpDX->m_client_width != m_lpDX->m_REAL_client_width || m_lpDX->m_client_height != m_lpDX->m_REAL_client_height)
 	{
 		int real_w = m_lpDX->m_REAL_client_width;   // real client size, in pixels

@@ -234,6 +234,10 @@ void RenderFrame() {
     g_plugin->PluginRender(
         (unsigned char*) pcmLeftOut,
         (unsigned char*) pcmRightOut);
+
+    g_plugin->Present();
+
+    g_plugin->PluginEndFrame();
 }
 
 unsigned __stdcall CreateWindowAndRun(void* data) {

@@ -13,6 +13,8 @@ struct IMilkDrop
 
     // Render!
     virtual int PluginRender(unsigned char* pWaveL, unsigned char* pWaveR) = 0;
+    virtual void Present() = 0;         // Call after PluginRender() unless doing your own presenting
+    virtual int PluginEndFrame() = 0;   // Call after PluginRender() and Present()
 
     // Handle input and window events
     virtual LRESULT PluginShellWindowProc(HWND hWnd, unsigned uMsg, WPARAM wParam, LPARAM lParam) = 0;

@@ -225,6 +225,7 @@ public:
     int  PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance);
     int  PluginInitialize(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS* d3dpp, HWND hwnd, int iWidth, int iHeight);
     int  PluginRender(unsigned char *pWaveL, unsigned char *pWaveR);
+    int  PluginEndFrame();
     void PluginQuit();
 
     void ToggleHelp();
@@ -244,6 +245,7 @@ public:
 
 private:
     void DrawAndDisplay(int redraw);
+    void Present();
     void ReadConfig();
     void WriteConfig();
     void DoTime();
