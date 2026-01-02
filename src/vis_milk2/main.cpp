@@ -23,8 +23,8 @@
 #define DLL_EXPORT __declspec(dllexport)
 //#define COMPILE_AS_DLL
 #define SAMPLE_SIZE 576
-#define DEFAULT_WIDTH 900;
-#define DEFAULT_HEIGHT 900;
+#define DEFAULT_WIDTH 1280;
+#define DEFAULT_HEIGHT 960;
 
 IMilkDrop* g_plugin = nullptr;
 IMilkSystemAudio* g_audio = nullptr;
@@ -67,6 +67,7 @@ void InitD3d(HWND hwnd, int width, int height) {
 
     memset(&d3dPp, 0, sizeof(d3dPp));
 
+    // NOTE: For non-vsync, use D3DSWAPEFFECT_FLIP with D3DPRESENT_INTERVAL_IMMEDIATE
     d3dPp.BackBufferCount = 1;
     d3dPp.BackBufferFormat = mode.Format;
     d3dPp.BackBufferWidth = width;
