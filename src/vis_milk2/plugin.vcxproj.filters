@@ -22,6 +22,9 @@
     <Filter Include="MilkDrop\Framework">
       <UniqueIdentifier>{3f8b24bf-9329-4170-b1ac-40cd8fd2c011}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BeatDrop">
+      <UniqueIdentifier>{088bba14-cda0-42cb-b0e3-d64329b53b81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="menu.cpp">
@@ -113,6 +116,21 @@
     </ClCompile>
     <ClCompile Include="main_dll.cpp">
       <Filter>MilkDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\audiobuf.cpp">
+      <Filter>BeatDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\guid.cpp">
+      <Filter>BeatDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\log.cpp">
+      <Filter>BeatDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\loopback-capture.cpp">
+      <Filter>BeatDrop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\prefs.cpp">
+      <Filter>BeatDrop</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +227,24 @@
     </ClInclude>
     <ClInclude Include="wasabi.h">
       <Filter>MilkDrop\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\cleanup.h">
+      <Filter>BeatDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\common.h">
+      <Filter>BeatDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\audiobuf.h">
+      <Filter>BeatDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\log.h">
+      <Filter>BeatDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\loopback-capture.h">
+      <Filter>BeatDrop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\prefs.h">
+      <Filter>BeatDrop</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

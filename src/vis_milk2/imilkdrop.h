@@ -5,6 +5,7 @@
 
 struct IDirect3DDevice9;
 
+// MilkDrop Music Visualizer
 struct IMilkDrop
 {
     virtual int PluginPreInitialize(HWND hWinampWnd, HINSTANCE hWinampInstance) = 0;
@@ -23,9 +24,20 @@ struct IMilkDrop
     virtual void MyWriteConfig() = 0;
 
     virtual unsigned int GetAdapterID() const = 0;
-}; 
+};
 
 __declspec(dllexport) IMilkDrop* GetMilkDrop();
+
+// System audio sink for MilkDrop
+struct IMilkSystemAudio
+{
+    virtual int StartThreads() = 0;
+    virtual int StopThreads() = 0;
+    virtual void DrainAudioBuf(unsigned char* pWaveL, unsigned char* pWaveR, int SamplesCount) = 0;
+};
+
+__declspec(dllexport) IMilkSystemAudio* GetMilkDropSystemAudioSink();
+
 
 // Linux port todo:
 // - x64 port
