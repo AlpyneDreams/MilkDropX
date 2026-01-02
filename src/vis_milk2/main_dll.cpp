@@ -20,8 +20,6 @@ IMilkDrop* GetMilkDrop()
     return &g_plugin;
 }
 
-// TODO: Only CoInit once etc.
-
 class CMilkSystemAudio : public IMilkSystemAudio
 {
     LoopbackCaptureThreadFunctionArguments threadArgs;
