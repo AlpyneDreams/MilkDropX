@@ -632,7 +632,12 @@ BOOL DoExplorerMenu (HWND hwnd, LPITEMIDLIST pidlMain, POINT point)
                 // restore old wndProc
                 if (g_pOldWndProc)
                 {
+#ifdef _WIN64
+                    // win64: The pointer is longer
+                    SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)g_pOldWndProc);
+#else
                     SetWindowLongPtr(hwnd, GWL_WNDPROC, (LONG_PTR)g_pOldWndProc);
+#endif
                 }
 
                 //
