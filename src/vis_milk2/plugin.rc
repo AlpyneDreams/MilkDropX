@@ -85,13 +85,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "Nullsoft et. al."
+            VALUE "CompanyName", "Nullsoft, Inc."
             VALUE "FileDescription", "MilkDrop Music Visualizer"
-            VALUE "FileVersion", "2, 0, 0, 0"
-            VALUE "InternalName", "BeatDrop"
-            VALUE "OriginalFilename", "MilkDrop.exe"
-            VALUE "ProductName", "BeatDrop"
-            VALUE "ProductVersion", "2, 0, 0, 0"
+            VALUE "LegalCopyright", "Copyright © 2001-2013 Nullsoft, Inc. Modifications by Maxim Volskiy, Casey Langen, and Jeffrey Ellison"
+            VALUE "FileVersion", "2, 41, 0, 0"
+            VALUE "InternalName", "vis_milk2.dll"
+            VALUE "OriginalFilename", "vis_milk2.dll"
+            VALUE "ProductName", "MilkDrop 2"
+            VALUE "ProductVersion", "2, 41, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
