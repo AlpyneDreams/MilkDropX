@@ -21,6 +21,15 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+//////////////////////////////////////////////////
+// Using projectm-eval instead!
+// If you want to test old ns-eel then add the .c
+// files to the build and comment out these lines
+//////////////////////////////////////////////////
+#pragma once
+#include "ns-eel2-shim/ns-eel.h"
+#define __NS_EEL_H__
+//////////////////////////////////////////////////
 
 #ifndef __NS_EEL_H__
 #define __NS_EEL_H__

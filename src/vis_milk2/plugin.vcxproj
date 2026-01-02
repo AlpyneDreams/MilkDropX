@@ -73,7 +73,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\extern\d3dx9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\extern\d3dx9\include;..\..\extern\projectm-eval;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;USE_VIS_HDR_HWND;STRSAFE_NO_DEPRECATE;NSEEL_REENTRANT_EXECUTION;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -127,7 +127,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\extern\d3dx9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\extern\d3dx9\include;..\..\extern\projectm-eval;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;USE_VIS_HDR_HWND;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -167,18 +167,21 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\extern\projectm-eval\ns-eel2-shim\ns-eel.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\api\projectm-eval.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\CompileContext.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\Compiler.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\CompilerFunctions.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\ExpressionTree.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\MemoryBuffer.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\Scanner.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\TreeFunctions.c" />
+    <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\TreeVariables.c" />
     <ClCompile Include="..\audio\audiobuf.cpp" />
     <ClCompile Include="..\audio\guid.cpp" />
     <ClCompile Include="..\audio\log.cpp" />
     <ClCompile Include="..\audio\loopback-capture.cpp" />
     <ClCompile Include="..\audio\prefs.cpp" />
-    <ClCompile Include="..\ns-eel2\nseel-caltab.c" />
-    <ClCompile Include="..\ns-eel2\nseel-cfunc.c" />
-    <ClCompile Include="..\ns-eel2\nseel-compiler.c" />
-    <ClCompile Include="..\ns-eel2\nseel-eval.c" />
-    <ClCompile Include="..\ns-eel2\nseel-lextab.c" />
-    <ClCompile Include="..\ns-eel2\nseel-ram.c" />
-    <ClCompile Include="..\ns-eel2\nseel-yylex.c" />
     <ClCompile Include="dxcontext.cpp" />
     <ClCompile Include="fft.cpp" />
     <ClCompile Include="menu.cpp" />
@@ -197,6 +200,17 @@
     <Image Include="plugin_icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\extern\projectm-eval\ns-eel2-shim\ns-eel.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\api\projectm-eval.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\CompileContext.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\Compiler.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\CompilerFunctions.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\CompilerTypes.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\ExpressionTree.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\MemoryBuffer.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\Scanner.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\TreeFunctions.h" />
+    <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\TreeVariables.h" />
     <ClInclude Include="..\audio\cleanup.h" />
     <ClInclude Include="..\audio\common.h" />
     <ClInclude Include="..\audio\audiobuf.h" />
@@ -226,6 +240,8 @@
     <ResourceCompile Include="plugin.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\extern\projectm-eval\projectm-eval\Compiler.y" />
+    <None Include="..\..\extern\projectm-eval\projectm-eval\Scanner.l" />
     <None Include="text1.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
