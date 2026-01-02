@@ -2731,6 +2731,12 @@ void PShaderInfo::Clear()
 //   ** when we evict a texture, we need to NULL out any texptrs these guys have! **
 CShaderParamsList global_CShaderParams_master_list;
 CShaderParams::CShaderParams() {
+    // HACK: fix static initialization order fiasco
+    static bool initialized = false;
+    if (!initialized) {
+        global_CShaderParams_master_list = CShaderParamsList();
+		initialized = true;
+    }
     global_CShaderParams_master_list.push_back(this);
 }
 
