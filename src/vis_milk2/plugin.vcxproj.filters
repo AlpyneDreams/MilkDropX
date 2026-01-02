@@ -112,9 +112,6 @@
     <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\api\projectm-eval.c">
       <Filter>ProjectM-Eval\api</Filter>
     </ClCompile>
-    <ClCompile Include="..\ns-eel2\asm-nseel-x86-msvc.c">
-      <Filter>NS-EEL2</Filter>
-    </ClCompile>
     <ClCompile Include="..\ns-eel2\nseel-caltab.c">
       <Filter>NS-EEL2</Filter>
     </ClCompile>
