@@ -4,10 +4,6 @@
     <Filter Include="MilkDrop">
       <UniqueIdentifier>{3377a26f-db8f-4eb6-8291-c31a4e1685cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="BeatDrop">
-      <UniqueIdentifier>{a80939e4-d079-498f-bb43-482a4708d7d5}</UniqueIdentifier>
-      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
-    </Filter>
     <Filter Include="MilkDrop\Plugin">
       <UniqueIdentifier>{b5a222b7-05ae-422e-a109-9d49c736ee9b}</UniqueIdentifier>
     </Filter>
@@ -28,21 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\audio\guid.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\log.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\loopback-capture.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\prefs.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\audio\audiobuf.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
     <ClCompile Include="menu.cpp">
       <Filter>MilkDrop\Plugin</Filter>
     </ClCompile>
@@ -115,9 +96,6 @@
     <ClCompile Include="..\ns-eel2\nseel-yylex.c">
       <Filter>NS-EEL2</Filter>
     </ClCompile>
-    <ClCompile Include="main_dll.cpp">
-      <Filter>BeatDrop</Filter>
-    </ClCompile>
     <ClCompile Include="dxcontext.cpp">
       <Filter>MilkDrop\Framework</Filter>
     </ClCompile>
@@ -132,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="wasabi.cpp">
       <Filter>MilkDrop\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="main_dll.cpp">
+      <Filter>MilkDrop</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,24 +139,6 @@
     </ClInclude>
     <ClInclude Include="textmgr.h">
       <Filter>MilkDrop\Plugin</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\audiobuf.h">
-      <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\cleanup.h">
-      <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\common.h">
-      <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\log.h">
-      <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\loopback-capture.h">
-      <Filter>BeatDrop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\audio\prefs.h">
-      <Filter>BeatDrop</Filter>
     </ClInclude>
     <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\CompilerFunctions.h">
       <Filter>ProjectM-Eval</Filter>

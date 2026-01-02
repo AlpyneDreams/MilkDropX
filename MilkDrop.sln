@@ -4,7 +4,10 @@ VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vis_milk2", "src\vis_milk2\plugin.vcxproj", "{881FB534-7396-485A-ADC2-6FBEBED7A0F4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MilkDrop.exe", "src\vis_milk2\standalone.vcxproj", "{6993A448-AD78-4611-A715-4109DD28400D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MilkDrop", "src\vis_milk2\standalone.vcxproj", "{6993A448-AD78-4611-A715-4109DD28400D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{881FB534-7396-485A-ADC2-6FBEBED7A0F4} = {881FB534-7396-485A-ADC2-6FBEBED7A0F4}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

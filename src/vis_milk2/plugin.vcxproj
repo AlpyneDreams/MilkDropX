@@ -343,11 +343,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\audio\audiobuf.cpp" />
-    <ClCompile Include="..\audio\guid.cpp" />
-    <ClCompile Include="..\audio\log.cpp" />
-    <ClCompile Include="..\audio\loopback-capture.cpp" />
-    <ClCompile Include="..\audio\prefs.cpp" />
     <ClCompile Include="..\ns-eel2\nseel-caltab.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -438,12 +433,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\audio\cleanup.h" />
-    <ClInclude Include="..\audio\common.h" />
-    <ClInclude Include="..\audio\audiobuf.h" />
-    <ClInclude Include="..\audio\log.h" />
-    <ClInclude Include="..\audio\loopback-capture.h" />
-    <ClInclude Include="..\audio\prefs.h" />
     <ClInclude Include="..\ns-eel2\ns-eel-addfuncs.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
