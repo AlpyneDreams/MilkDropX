@@ -22,13 +22,13 @@
 */
 
 //////////////////////////////////////////////////
-// Using projectm-eval instead!
-// If you want to test old ns-eel then add the .c
-// files to the build and comment out these lines
+// Using projectm-eval instead for x64!
 //////////////////////////////////////////////////
+#ifndef _M_IX86
 #pragma once
 #include "ns-eel2-shim/ns-eel.h"
 #define __NS_EEL_H__
+#endif
 //////////////////////////////////////////////////
 
 #ifndef __NS_EEL_H__

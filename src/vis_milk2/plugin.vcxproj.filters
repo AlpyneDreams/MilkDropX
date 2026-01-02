@@ -23,6 +23,9 @@
     <Filter Include="ProjectM-Eval\api">
       <UniqueIdentifier>{38f3fa6c-b2ff-4da7-b0a5-05e4f99252d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NS-EEL2">
+      <UniqueIdentifier>{4229119c-070f-4f2a-8b69-177495b6b76e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -108,6 +111,30 @@
     </ClCompile>
     <ClCompile Include="..\..\extern\projectm-eval\projectm-eval\api\projectm-eval.c">
       <Filter>ProjectM-Eval\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\asm-nseel-x86-msvc.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-caltab.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-cfunc.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-compiler.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-eval.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-lextab.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-ram.c">
+      <Filter>NS-EEL2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ns-eel2\nseel-yylex.c">
+      <Filter>NS-EEL2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +242,15 @@
     </ClInclude>
     <ClInclude Include="..\..\extern\projectm-eval\projectm-eval\api\projectm-eval.h">
       <Filter>ProjectM-Eval\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ns-eel2\ns-eel.h">
+      <Filter>NS-EEL2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ns-eel2\ns-eel-addfuncs.h">
+      <Filter>NS-EEL2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ns-eel2\ns-eel-int.h">
+      <Filter>NS-EEL2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
